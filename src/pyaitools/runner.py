@@ -149,15 +149,19 @@ class Runner:
                 else:
                     config_value = str(base_config_path) if base_config_path else ""
                 cov_target = self._resolve_cov_target(check, project_config)
-                argv = [
-                    str(binary),
-                    *config_argv,
-                    *([] if ignore_material.config_path else ignore_material.argv),
-                    *[
-                        part.format(target=target, cov=cov_target, config=config_value)
-                        for part in check.argv
-                    ],
-                ]
+                ignore_argv = [] if ignore_material.config_path else ignore_material.argv
+                argv = self._build_tool_argv(
+                    binary=str(binary),
+                    tool_id=tool.id,
+                    config_argv=config_argv,
+                    ignore_argv=ignore_argv,
+                    check_argv=check.argv,
+                    format_values={
+                        "target": target,
+                        "cov": cov_target,
+                        "config": config_value,
+                    },
+                )
                 env = self.resolver.prepend_managed_path()
                 env.update(ignore_env(effective_ignores, self.project_root))
         except FileNotFoundError as exc:
@@ -279,6 +283,19 @@ class Runner:
                 if ref.id == check_id:
                     return ref
         return None
+
+    def _build_tool_argv(
+        self,
+        *,
+        binary: str,
+        tool_id: str,
+        config_argv: list[str],
+        ignore_argv: list[str],
+        check_argv: list[str],
+        format_values: dict[str, str],
+    ) -> list[str]:
+        formatted = [part.format(**format_values) for part in check_argv]
+        return [binary, *config_argv, *ignore_argv, *formatted]
 
     def _build_script_argv(
         self,

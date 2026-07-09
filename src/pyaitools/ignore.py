@@ -133,10 +133,12 @@ def materialize_for_tool(
     cache_dir.mkdir(parents=True, exist_ok=True)
 
     if tool_id == "ruff":
-        argv = []
-        for pattern in patterns:
-            argv.extend(["--extend-exclude", pattern])
-        return ToolIgnoreMaterial(argv=argv)
+        config_path = cache_dir / "ruff.toml"
+        lines = ["extend-exclude = ["]
+        lines.extend(f'  "{pattern}",' for pattern in patterns)
+        lines.append("]")
+        config_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        return ToolIgnoreMaterial(argv=["--config", str(config_path)], config_path=config_path)
 
     if tool_id == "ty":
         config_path = cache_dir / "ty.toml"
