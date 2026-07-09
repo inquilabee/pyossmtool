@@ -1,0 +1,8 @@
+id: semgrep
+name: Semgrep
+description: Static analysis for security and code quality patterns.
+install:
+  method: pip
+  package: "semgrep>=1.79.0"
+binary: semgrep
+documentation_url: https://semgrep.dev/

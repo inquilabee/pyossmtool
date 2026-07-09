@@ -1,0 +1,8 @@
+id: sourcery
+name: Sourcery
+description: Automated Python code review and refactoring suggestions.
+install:
+  method: pip
+  package: "sourcery>=1.0.0"
+binary: sourcery
+documentation_url: https://sourcery.ai/

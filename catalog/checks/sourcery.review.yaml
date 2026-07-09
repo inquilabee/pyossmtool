@@ -1,0 +1,15 @@
+id: sourcery.review
+tool: sourcery
+name: Sourcery Review
+description: Automated code review suggestions (optional; may require Sourcery account).
+target_key: python
+argv:
+  - review
+  - "{target}"
+  - --check
+parser: sourcery_text
+success:
+  exit_codes: [0, 1]
+remediation:
+  suggested_commands:
+    - "sourcery review {target}"

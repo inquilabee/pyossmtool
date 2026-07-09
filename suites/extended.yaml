@@ -1,0 +1,40 @@
+id: extended
+name: Extended Quality Suite
+description: Standard suite plus slow or optional checks (mutation testing, sourcery review).
+env: auto
+targets:
+  python: src/
+  tests: tests/
+  coverage: src/
+  shell: bin/
+  markdown: .
+  yaml: .
+  prose: .
+  repo: .
+  dockerfile: Dockerfile
+checks:
+  - id: ruff.lint
+  - id: ruff.format
+  - id: ruff.unused
+  - id: ty.check
+  - id: bandit.scan
+  - id: gitleaks.secrets
+  - id: semgrep.scan
+  - id: deadcode.scan
+  - id: vulture.scan
+  - id: pydeps.cycles
+  - id: radon.cc
+  - id: radon.mi
+  - id: jscpd.duplication
+  - id: shellcheck
+  - id: shfmt.format
+  - id: mdformat.format
+  - id: markdownlint.check
+  - id: yamlfmt.format
+  - id: yamllint.check
+  - id: codespell.spelling
+  - id: pytest.test
+  - id: pytest.coverage
+  - id: hadolint.dockerfile
+  - id: mutmut.run
+  - id: sourcery.review

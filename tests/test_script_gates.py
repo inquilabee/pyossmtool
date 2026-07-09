@@ -1,0 +1,55 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from pyaitools.models import Severity
+from pyaitools.parsers import _parse_gate_json, _parse_script_text
+from pyaitools.registry import Registry
+
+
+def test_registry_loads_project_script_gate(tmp_path: Path) -> None:
+    catalog = tmp_path / ".pyaitools" / "catalog" / "checks"
+    catalog.mkdir(parents=True)
+    (catalog / "gate.example.yaml").write_text(
+        """
+id: gate.example
+tool: script
+name: Example
+description: test gate
+script: .pyaitools/gates/example.sh
+parser: gate_json
+target_key: repo
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    registry = Registry(project_root=tmp_path)
+    check = registry.get_check("gate.example")
+    assert check.tool == "script"
+    assert check.script == ".pyaitools/gates/example.sh"
+
+
+def test_parse_gate_json_findings() -> None:
+    payload = {
+        "findings": [
+            {
+                "rule_id": "line-limit",
+                "severity": "error",
+                "message": "too long",
+                "location": {"file": "src/a.py", "line": 1},
+            }
+        ]
+    }
+    findings = _parse_gate_json(json.dumps(payload), "")
+    assert len(findings) == 1
+    assert findings[0].rule_id == "line-limit"
+    assert findings[0].severity == Severity.ERROR
+    assert findings[0].location is not None
+    assert findings[0].location.file == "src/a.py"
+
+
+def test_parse_script_text_fail_lines() -> None:
+    findings = _parse_script_text("", "FAIL module-size: src/foo.py has 999 lines\n")
+    assert len(findings) == 1
+    assert "foo.py" in findings[0].message

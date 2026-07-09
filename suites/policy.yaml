@@ -1,0 +1,13 @@
+id: policy
+name: Policy Gates
+description: Structural policy checks (module size, private vars, folder breadth, acronyms).
+env: auto
+targets:
+  python: src/
+  repo: .
+  prose: .
+checks:
+  - id: gate.module-size
+  - id: gate.module-private-vars
+  - id: gate.folder-breadth
+  - id: gate.acronym-allowlist

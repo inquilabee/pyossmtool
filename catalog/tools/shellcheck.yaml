@@ -1,0 +1,8 @@
+id: shellcheck
+name: ShellCheck
+description: Static analysis for shell scripts.
+install:
+  method: system
+  package: shellcheck
+binary: shellcheck
+documentation_url: https://www.shellcheck.net/

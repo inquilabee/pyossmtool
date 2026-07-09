@@ -1,0 +1,11 @@
+id: gate.acronym-allowlist
+tool: script
+name: Acronym Allowlist Gate
+description: Require documented expansions for acronyms in contributor prose.
+script: bundled:gates/acronym-allowlist.sh
+target_key: prose
+parser: gate_json
+output_file: .pyaitools/reports/gate.acronym-allowlist.json
+argv: []
+success:
+  exit_codes: [0]

@@ -1,0 +1,8 @@
+id: yamllint
+name: yamllint
+description: YAML syntax and style linter.
+install:
+  method: pip
+  package: "yamllint>=1.38.0"
+binary: yamllint
+documentation_url: https://yamllint.readthedocs.io/

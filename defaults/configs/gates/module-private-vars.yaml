@@ -1,0 +1,4 @@
+scan_roots:
+  - src/
+base_branch: main
+allowlist_file: .pyaitools/allowlists/module-private-vars.txt

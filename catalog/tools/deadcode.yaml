@@ -1,0 +1,8 @@
+id: deadcode
+name: deadcode
+description: Find unused Python code by static analysis.
+install:
+  method: pip
+  package: "deadcode>=2.4.0"
+binary: deadcode
+documentation_url: https://github.com/alanedwardes/deadcode

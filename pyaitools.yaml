@@ -1,0 +1,9 @@
+suite: python-quality
+env: auto
+targets:
+  python: src/
+  shell: bin/
+  markdown: .
+  yaml: .
+configs:
+  mode: auto

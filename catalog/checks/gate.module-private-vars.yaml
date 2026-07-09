@@ -1,0 +1,11 @@
+id: gate.module-private-vars
+tool: script
+name: Module Private Vars Gate
+description: Forbid module-level names with a single leading underscore.
+script: bundled:gates/module-private-vars.sh
+target_key: python
+parser: gate_json
+output_file: .pyaitools/reports/gate.module-private-vars.json
+argv: []
+success:
+  exit_codes: [0]

@@ -1,0 +1,4 @@
+formatter:
+  type: basic
+  indent: 2
+  include_document_start: false

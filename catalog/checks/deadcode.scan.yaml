@@ -1,0 +1,14 @@
+id: deadcode.scan
+tool: deadcode
+name: Deadcode Scan
+description: Find unused Python definitions.
+target_key: python
+argv:
+  - --no-color
+  - "{target}"
+parser: deadcode_text
+success:
+  exit_codes: [0]
+remediation:
+  suggested_commands:
+    - "deadcode --no-color {target}"

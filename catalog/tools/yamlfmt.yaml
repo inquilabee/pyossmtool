@@ -1,0 +1,8 @@
+id: yamlfmt
+name: yamlfmt
+description: YAML formatter and linter from Google.
+install:
+  method: system
+  package: yamlfmt
+binary: yamlfmt
+documentation_url: https://github.com/google/yamlfmt

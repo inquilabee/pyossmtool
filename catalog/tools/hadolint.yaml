@@ -1,0 +1,8 @@
+id: hadolint
+name: Hadolint
+description: Dockerfile linter.
+install:
+  method: system
+  package: hadolint
+binary: hadolint
+documentation_url: https://github.com/hadolint/hadolint

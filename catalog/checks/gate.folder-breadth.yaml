@@ -1,0 +1,11 @@
+id: gate.folder-breadth
+tool: script
+name: Folder Breadth Gate
+description: Cap direct sibling file counts in leaf directories.
+script: bundled:gates/folder-breadth.sh
+target_key: repo
+parser: gate_json
+output_file: .pyaitools/reports/gate.folder-breadth.json
+argv: []
+success:
+  exit_codes: [0]

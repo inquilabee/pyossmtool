@@ -1,0 +1,8 @@
+id: bandit
+name: Bandit
+description: Security issue scanner for Python.
+install:
+  method: pip
+  package: "bandit>=1.9.0"
+binary: bandit
+documentation_url: https://bandit.readthedocs.io/

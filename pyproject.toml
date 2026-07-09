@@ -1,0 +1,30 @@
+[project]
+name = "pyaitools"
+version = "0.1.0"
+description = "Quality-gate orchestrator for AI-assisted development"
+requires-python = ">=3.11"
+dependencies = [
+  "pydantic>=2.0",
+  "pyyaml>=6.0",
+  "typer>=0.12",
+]
+
+[project.scripts]
+pyaitools = "pyaitools.cli:app"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pyaitools = ["py.typed"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ty]
+# Repo-owned config; wins over bundled defaults when configs.mode=auto

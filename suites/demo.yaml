@@ -1,0 +1,26 @@
+id: demo
+name: Demo Suite
+description: Internal demo suite for sample_files fixtures (development only).
+env: auto
+targets:
+  python: sample_files/
+  shell: sample_files/example.sh
+  markdown: sample_files/
+  yaml: sample_files/
+checks:
+  - id: ruff.lint
+    target: sample_files/
+  - id: ruff.format
+    target: sample_files/
+  - id: ty.check
+    target: sample_files/
+  - id: shellcheck
+    target: sample_files/example.sh
+  - id: bandit.scan
+    target: sample_files/
+  - id: radon.cc
+    target: sample_files/
+  - id: jscpd.duplication
+    target: sample_files/
+  - id: gate.demo-line-limit
+    target: sample_files/

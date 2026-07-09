@@ -1,0 +1,7 @@
+reports/failures/
+.pyaitools/
+venv/
+.ruff_cache/
+report/
+__pycache__/
+*.egg-info/

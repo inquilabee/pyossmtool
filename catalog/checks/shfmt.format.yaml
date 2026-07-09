@@ -1,0 +1,14 @@
+id: shfmt.format
+tool: shfmt
+name: shfmt Format Check
+description: Verify shell script formatting via diff mode.
+target_key: shell
+argv:
+  - -d
+  - "{target}"
+parser: shfmt_diff
+success:
+  exit_codes: [0]
+remediation:
+  suggested_commands:
+    - "shfmt -w {target}"

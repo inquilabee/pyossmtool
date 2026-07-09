@@ -1,0 +1,8 @@
+id: markdownlint
+name: markdownlint
+description: Markdown style linter (markdownlint-cli).
+install:
+  method: npm
+  package: markdownlint-cli
+binary: markdownlint
+documentation_url: https://github.com/DavidAnson/markdownlint

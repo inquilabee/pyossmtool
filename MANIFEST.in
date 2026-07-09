@@ -1,0 +1,3 @@
+include defaults/**/*
+include catalog/**/*
+include suites/**/*

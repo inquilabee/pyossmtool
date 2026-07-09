@@ -1,0 +1,10 @@
+id: python-quality
+name: Python Quality
+description: Core Python lint, format, and type checks.
+env: auto
+targets:
+  python: src/
+checks:
+  - id: ruff.lint
+  - id: ruff.format
+  - id: ty.check

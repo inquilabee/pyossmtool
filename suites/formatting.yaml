@@ -1,0 +1,14 @@
+id: formatting
+name: Formatting
+description: All format-only checks across Python, shell, Markdown, and YAML.
+env: auto
+targets:
+  python: src/
+  shell: bin/
+  markdown: .
+  yaml: .
+checks:
+  - id: ruff.format
+  - id: shfmt.format
+  - id: mdformat.format
+  - id: yamlfmt.format

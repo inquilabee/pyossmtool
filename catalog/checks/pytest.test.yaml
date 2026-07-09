@@ -1,0 +1,15 @@
+id: pytest.test
+tool: pytest
+name: Pytest
+description: Run the project test suite.
+target_key: tests
+argv:
+  - "{target}"
+  - -q
+  - --tb=line
+parser: pytest_text
+success:
+  exit_codes: [0]
+remediation:
+  suggested_commands:
+    - "pytest {target}"

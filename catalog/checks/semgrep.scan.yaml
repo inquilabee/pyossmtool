@@ -1,0 +1,17 @@
+id: semgrep.scan
+tool: semgrep
+name: Semgrep Scan
+description: Static analysis for security and architecture patterns.
+target_key: python
+argv:
+  - scan
+  - "{target}"
+  - --error
+  - --json
+  - --quiet
+parser: semgrep_json
+success:
+  exit_codes: [0, 1]
+remediation:
+  suggested_commands:
+    - "semgrep scan --config <rules> {target}"

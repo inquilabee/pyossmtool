@@ -1,0 +1,37 @@
+# Copy to your consumer repo as pyaitools.yaml
+suite: standard
+env: auto  # auto | managed | project
+
+# Scan roots — set paths for your repository layout
+targets:
+  python: src/
+  tests: tests/
+  coverage: src/
+  shell: bin/
+  markdown: .
+  yaml: .
+  prose: .
+  repo: .
+  dockerfile: Dockerfile
+
+# Optional per-check overrides (inherit suite checks when empty)
+# checks:
+#   - id: ruff.lint
+#     target: src/
+#   - id: gate.module-size
+#     target: .
+
+# Script gates (project-local bash checks)
+# 1. Scaffold:  pyaitools gate init module-size --description "Cap module line counts"
+# 2. Edit:      .pyaitools/gates/module-size.sh  (source lib via: pyaitools gates lib-path)
+# 3. Register:  auto-created at .pyaitools/catalog/checks/gate.module-size.yaml
+# 4. Enable:    add `- id: gate.module-size` under checks (or use a .pyaitools/suites/*.yaml)
+
+# Config resolution: repo configs win in auto mode; bundled used as fallback
+configs:
+  mode: auto  # auto | bundled | paths
+  # paths:
+  #   gate.module-size: .pyaitools/configs/gates/gate.module-size.yaml
+
+# Policy gate overrides (optional) — see defaults/configs/gates/*.yaml
+# .pyaitools/configs/gates/gate.module-size.yaml

@@ -1,0 +1,51 @@
+id: standard
+name: Standard Quality Suite
+description: Full portable quality gate set for new Python projects (matches reslab tool coverage).
+env: auto
+targets:
+  python: src/
+  tests: tests/
+  coverage: src/
+  shell: bin/
+  markdown: .
+  yaml: .
+  prose: .
+  repo: .
+  dockerfile: Dockerfile
+checks:
+  # Python lint, format, types
+  - id: ruff.lint
+  - id: ruff.format
+  - id: ruff.unused
+  - id: ty.check
+  # Security
+  - id: bandit.scan
+  - id: gitleaks.secrets
+  - id: semgrep.scan
+  # Dead code
+  - id: deadcode.scan
+  - id: vulture.scan
+  # Structure
+  - id: pydeps.cycles
+  - id: radon.cc
+  - id: radon.mi
+  - id: jscpd.duplication
+  # Shell
+  - id: shellcheck
+  - id: shfmt.format
+  # Docs and config
+  - id: mdformat.format
+  - id: markdownlint.check
+  - id: yamlfmt.format
+  - id: yamllint.check
+  - id: codespell.spelling
+  # Tests
+  - id: pytest.test
+  - id: pytest.coverage
+  # Docker (skipped gracefully if Dockerfile missing — tool exits non-zero)
+  - id: hadolint.dockerfile
+  # Structural policy gates
+  - id: gate.module-size
+  - id: gate.module-private-vars
+  - id: gate.folder-breadth
+  - id: gate.acronym-allowlist

@@ -1,0 +1,8 @@
+id: ruff
+name: Ruff
+description: Fast Python linter and formatter.
+install:
+  method: pip
+  package: "ruff>=0.15.0"
+binary: ruff
+documentation_url: https://docs.astral.sh/ruff/

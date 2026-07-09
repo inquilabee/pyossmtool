@@ -1,0 +1,14 @@
+id: mdformat.format
+tool: mdformat
+name: mdformat Check
+description: Verify Markdown formatting without applying changes.
+target_key: markdown
+argv:
+  - --check
+  - "{target}"
+parser: mdformat_text
+success:
+  exit_codes: [0]
+remediation:
+  suggested_commands:
+    - "mdformat {target}"

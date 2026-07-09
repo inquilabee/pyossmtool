@@ -1,0 +1,7 @@
+id: script
+name: Shell Script Gate
+description: Project-local bash gate script (install skipped; uses system bash).
+install:
+  method: skip
+binary: bash
+documentation_url: https://github.com/dayhatt/pyaitools#script-gates
