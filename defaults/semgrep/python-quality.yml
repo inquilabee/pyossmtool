@@ -5,14 +5,12 @@ rules:
     message: Avoid eval() — use safer alternatives.
     languages: [python]
     severity: ERROR
-
   - id: no-exec
     patterns:
       - pattern: exec(...)
     message: Avoid exec() — use safer alternatives.
     languages: [python]
     severity: ERROR
-
   - id: no-hardcoded-temp-password
     patterns:
       - pattern: password = "..."

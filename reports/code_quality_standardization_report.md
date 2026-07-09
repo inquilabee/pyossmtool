@@ -50,8 +50,8 @@ Suite `formatting` runs all format-only checks. Suite `standard` is the recommen
 Precedence (per tool):
 
 1. **Repo-native** — `ruff.toml`, `pyproject.toml` `[tool.ruff]`, `[tool.ty]`, etc. (native discovery, no `--config` injected)
-2. **`pyaitools.yaml` `configs.paths`** — when `configs.mode: paths`
-3. **Bundled defaults** — `defaults/configs/` when repo has no config (`configs.mode: auto` or `bundled`)
+1. **`pyaitools.yaml` `configs.paths`** — when `configs.mode: paths`
+1. **Bundled defaults** — `defaults/configs/` when repo has no config (`configs.mode: auto` or `bundled`)
 
 | Mode | Behavior |
 |------|----------|
@@ -152,9 +152,9 @@ Wrap existing scripts with `parser: script_text`, or migrate to `gate_fail` / `g
 ## Design invariants
 
 1. One tool, many checks
-2. Explicit dependency graph (suite → checks → tools)
-3. Success is silent
-4. Failure is structured (`FailureReport` v1)
-5. Hybrid env (`auto` / `managed` / `project`)
-6. Repo configs beat bundled defaults
-7. Portable `pyaitools.yaml` — no sample paths in consumer config
+1. Explicit dependency graph (suite → checks → tools)
+1. Success is silent
+1. Failure is structured (`FailureReport` v1)
+1. Hybrid env (`auto` / `managed` / `project`)
+1. Repo configs beat bundled defaults
+1. Portable `pyaitools.yaml` — no sample paths in consumer config

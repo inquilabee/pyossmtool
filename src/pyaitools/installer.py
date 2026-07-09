@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -37,19 +38,24 @@ class Installer:
         if tool.install.method == InstallMethod.SYSTEM:
             if self.resolver._resolve_system(tool.binary) is None:
                 import sys
+
                 print(
                     f"WARN: system tool '{tool.binary}' not found; install manually to enable related checks",
                     file=sys.stderr,
                 )
             return
 
-        if self._binary_available(tool):
-            return
-
         if tool.install.method == InstallMethod.PIP:
             self._ensure_managed_venv()
             self._install_pip(tool)
-        elif tool.install.method == InstallMethod.NPM:
+            if not self._binary_available_in_managed(tool):
+                raise RuntimeError(f"Failed to install tool '{tool.id}' ({tool.binary})")
+            return
+
+        if self._binary_available(tool):
+            return
+
+        if tool.install.method == InstallMethod.NPM:
             self._install_npm(tool)
         else:
             raise RuntimeError(f"Unsupported install method: {tool.install.method}")
@@ -64,11 +70,33 @@ class Installer:
         except FileNotFoundError:
             return False
 
+    def _binary_available_in_managed(self, tool: ToolDef) -> bool:
+        return self._binary_available(tool)
+
+    def _managed_python(self) -> str:
+        if sys.version_info < (3, 14):
+            return sys.executable
+        for candidate in ("python3.13", "python3.12", "python3.11"):
+            found = shutil.which(candidate)
+            if found:
+                return found
+        return sys.executable
+
     def _ensure_managed_venv(self) -> None:
+        python_bin = self.managed_venv / "bin" / "python"
+        if python_bin.exists():
+            version = subprocess.run(
+                [str(python_bin), "--version"],
+                capture_output=True,
+                text=True,
+                check=True,
+            ).stdout
+            if "3.14" in version:
+                shutil.rmtree(self.managed_venv)
         if (self.managed_venv / "bin" / "python").exists():
             return
         self.managed_venv.parent.mkdir(parents=True, exist_ok=True)
-        subprocess.run([sys.executable, "-m", "venv", str(self.managed_venv)], check=True)
+        subprocess.run([self._managed_python(), "-m", "venv", str(self.managed_venv)], check=True)
 
     def _install_pip(self, tool: ToolDef) -> None:
         pip = self.managed_venv / "bin" / "pip"

@@ -2,11 +2,18 @@
 name = "pyaitools"
 version = "0.1.0"
 description = "Quality-gate orchestrator for AI-assisted development"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.14"
 dependencies = [
   "pydantic>=2.0",
+  "pathspec>=0.12",
   "pyyaml>=6.0",
   "typer>=0.12",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.0",
+  "pytest-cov>=6.0",
 ]
 
 [project.scripts]
@@ -28,3 +35,9 @@ target-version = "py311"
 
 [tool.ty]
 # Repo-owned config; wins over bundled defaults when configs.mode=auto
+
+[tool.bandit]
+skips = ["B404", "B603", "B607"]
+
+[tool.codespell]
+ignore-words-list = "IST,fullfilled"

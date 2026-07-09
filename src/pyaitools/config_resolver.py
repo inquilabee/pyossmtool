@@ -29,13 +29,36 @@ class ConfigResolver:
             return self._config_argv(tool_id, bundled) if bundled else []
 
         # auto: repo-native discovery wins (no flags); else bundled fallback
+        if tool_id == "bandit" and self._pyproject_has_table("tool", "bandit"):
+            return ["-c", str(self.project_root / "pyproject.toml")]
         if self._repo_has_config(tool_id):
             return []
         bundled = self._bundled_path(tool_id)
         return self._config_argv(tool_id, bundled) if bundled else []
 
+    def resolve_config_path(
+        self, tool_id: str, project_config: ProjectConfig | None
+    ) -> Path | None:
+        spec = project_config.configs if project_config else ConfigSpec()
+        if spec.mode == ConfigMode.PATHS:
+            path = spec.paths.get(tool_id)
+            if path:
+                candidate = (self.project_root / path).resolve()
+                return candidate if candidate.exists() else None
+
+        if spec.mode == ConfigMode.BUNDLED:
+            bundled = self._bundled_path(tool_id)
+            return bundled.resolve() if bundled and bundled.exists() else None
+
+        if self._repo_has_config(tool_id):
+            return None
+        bundled = self._bundled_path(tool_id)
+        return bundled.resolve() if bundled and bundled.exists() else None
+
     def _config_argv(self, tool_id: str, config_path: Path) -> list[str]:
         if not config_path.exists():
+            return []
+        if tool_id in {"semgrep", "markdownlint"}:
             return []
         if tool_id == "ruff":
             return ["--config", str(config_path)]
@@ -48,7 +71,9 @@ class ConfigResolver:
         if tool_id == "yamllint":
             return ["-c", str(config_path)]
         if tool_id == "markdownlint":
-            return ["--config", str(config_path)]
+            return ["-c", str(config_path)]
+        if tool_id == "bandit":
+            return ["-c", str(config_path)]
         return []
 
     def _bundled_path(self, tool_id: str) -> Path | None:
@@ -58,6 +83,7 @@ class ConfigResolver:
             "yamlfmt": self.defaults_dir / "yamlfmt.yaml",
             "yamllint": self.defaults_dir / "yamllint.yaml",
             "markdownlint": self.defaults_dir / "markdownlint.json",
+            "bandit": self.defaults_dir / "bandit.yaml",
             "semgrep": PACKAGE_ROOT / "defaults" / "semgrep" / "python-quality.yml",
         }
         path = mapping.get(tool_id)
@@ -99,6 +125,8 @@ class ConfigResolver:
             return False
         if tool_id == "codespell":
             return self._pyproject_has_table("tool", "codespell")
+        if tool_id == "bandit":
+            return False
         return False
 
     def _pyproject_has_table(self, *keys: str) -> bool:

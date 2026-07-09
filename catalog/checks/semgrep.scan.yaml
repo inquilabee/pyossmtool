@@ -5,6 +5,8 @@ description: Static analysis for security and architecture patterns.
 target_key: python
 argv:
   - scan
+  - --config
+  - "{config}"
   - "{target}"
   - --error
   - --json

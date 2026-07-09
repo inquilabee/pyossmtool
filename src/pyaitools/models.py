@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 SCHEMA_VERSION = "1.0"
@@ -69,7 +69,18 @@ class ConfigSpec(BaseModel):
     paths: dict[str, str] = Field(default_factory=dict)
 
 
+class IgnoreSpec(BaseModel):
+    """Repo-wide ignore rules merged across suite, project, and per-check layers."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    ignore_profile: list[str] = Field(default_factory=list, alias="ignore-profile")
+    ignore_paths: list[str] = Field(default_factory=list, alias="ignore-paths")
+
+
 class CheckDef(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     id: str
     tool: str
     name: str
@@ -82,6 +93,8 @@ class CheckDef(BaseModel):
     policy: CheckPolicy | None = None
     remediation: dict[str, Any] = Field(default_factory=dict)
     output_file: str | None = None
+    ignore_profile: list[str] = Field(default_factory=list, alias="ignore-profile")
+    ignore_paths: list[str] = Field(default_factory=list, alias="ignore-paths")
 
     @model_validator(mode="after")
     def validate_script_gate(self) -> CheckDef:
@@ -91,25 +104,37 @@ class CheckDef(BaseModel):
 
 
 class SuiteCheckRef(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     id: str
     target: str | None = None
+    ignore_profile: list[str] = Field(default_factory=list, alias="ignore-profile")
+    ignore_paths: list[str] = Field(default_factory=list, alias="ignore-paths")
 
 
 class SuiteDef(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     id: str
     name: str
     description: str
     env: EnvMode = EnvMode.AUTO
     checks: list[SuiteCheckRef]
     targets: dict[str, str] = Field(default_factory=dict)
+    ignore_profile: list[str] = Field(default_factory=list, alias="ignore-profile")
+    ignore_paths: list[str] = Field(default_factory=list, alias="ignore-paths")
 
 
 class ProjectConfig(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     suite: str
     env: EnvMode = EnvMode.AUTO
     targets: dict[str, str] = Field(default_factory=dict)
     checks: list[SuiteCheckRef] = Field(default_factory=list)
     configs: ConfigSpec = Field(default_factory=ConfigSpec)
+    ignore_profile: list[str] = Field(default_factory=list, alias="ignore-profile")
+    ignore_paths: list[str] = Field(default_factory=list, alias="ignore-paths")
 
 
 class Location(BaseModel):

@@ -130,9 +130,13 @@ def _load_env_file(path: Path) -> dict[str, Any]:
         if normalized == "folder_breadth_max":
             values["max_allowed"] = int(value.strip())
         elif normalized == "folder_breadth_scan_roots":
-            values["scan_roots"] = [part.strip() for part in value.strip().split(",") if part.strip()]
+            values["scan_roots"] = [
+                part.strip() for part in value.strip().split(",") if part.strip()
+            ]
         elif normalized == "folder_breadth_extensions":
-            values["extensions"] = [part.strip() for part in value.strip().split(",") if part.strip()]
+            values["extensions"] = [
+                part.strip() for part in value.strip().split(",") if part.strip()
+            ]
         else:
             values[normalized] = value.strip()
     return values

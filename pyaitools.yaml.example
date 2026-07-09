@@ -2,6 +2,14 @@
 suite: standard
 env: auto  # auto | managed | project
 
+# Ignore rules (union-merged with suite defaults and per-check overrides)
+# ignore-profile:
+#   - .gitignore
+#   - .cursorignore
+# ignore-paths:
+#   - build/
+#   - tmp/
+
 # Scan roots — set paths for your repository layout
 targets:
   python: src/
@@ -18,6 +26,9 @@ targets:
 # checks:
 #   - id: ruff.lint
 #     target: src/
+#   - id: deadcode.scan
+#     ignore-paths:
+#       - "**/generated/**"
 #   - id: gate.module-size
 #     target: .
 

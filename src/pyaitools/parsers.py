@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import re
-from pathlib import Path
 
 from pyaitools.models import CheckDef, Finding, FixHint, Location, Severity
 
@@ -86,7 +85,9 @@ def _parse_ruff_json(stdout: str) -> list[Finding]:
         findings.append(
             Finding(
                 rule_id=item.get("code", "ruff"),
-                severity=Severity.ERROR if item.get("code", "").startswith("E") else Severity.WARNING,
+                severity=Severity.ERROR
+                if item.get("code", "").startswith("E")
+                else Severity.WARNING,
                 message=item.get("message", "ruff finding"),
                 location=location,
                 snippet=item.get("message"),
@@ -212,7 +213,9 @@ def _parse_bandit(stdout: str) -> list[Finding]:
         findings.append(
             Finding(
                 rule_id=item.get("test_id", "bandit"),
-                severity=Severity.ERROR if item.get("issue_severity") == "HIGH" else Severity.WARNING,
+                severity=Severity.ERROR
+                if item.get("issue_severity") == "HIGH"
+                else Severity.WARNING,
                 message=item.get("issue_text", "bandit finding"),
                 location=Location(
                     file=item.get("filename", ""),
@@ -223,7 +226,7 @@ def _parse_bandit(stdout: str) -> list[Finding]:
     return findings
 
 
-_RANK_ORDER = {"A": 1, "B": 2, "C": 3, "D": 4, "E": 5, "F": 6}
+RANK_ORDER = {"A": 1, "B": 2, "C": 3, "D": 4, "E": 5, "F": 6}
 
 
 def _parse_radon_cc(stdout: str, check: CheckDef) -> list[Finding]:
@@ -231,12 +234,12 @@ def _parse_radon_cc(stdout: str, check: CheckDef) -> list[Finding]:
         return []
     payload = json.loads(stdout)
     max_rank = (check.policy.max_complexity_rank if check.policy else "A") or "A"
-    max_value = _RANK_ORDER.get(max_rank, 1)
+    max_value = RANK_ORDER.get(max_rank, 1)
     findings: list[Finding] = []
     for file_path, blocks in payload.items():
         for block in blocks:
             rank = block.get("rank", "A")
-            if _RANK_ORDER.get(rank, 99) > max_value:
+            if RANK_ORDER.get(rank, 99) > max_value:
                 findings.append(
                     Finding(
                         rule_id="complexity",
@@ -253,11 +256,11 @@ def _parse_radon_mi(stdout: str, check: CheckDef) -> list[Finding]:
         return []
     payload = json.loads(stdout)
     max_rank = (check.policy.max_complexity_rank if check.policy else "A") or "A"
-    max_value = _RANK_ORDER.get(max_rank, 1)
+    max_value = RANK_ORDER.get(max_rank, 1)
     findings: list[Finding] = []
     for file_path, item in payload.items():
         rank = item.get("rank", "A")
-        if _RANK_ORDER.get(rank, 99) > max_value:
+        if RANK_ORDER.get(rank, 99) > max_value:
             findings.append(
                 Finding(
                     rule_id="maintainability",
@@ -278,14 +281,17 @@ def _parse_jscpd(stdout: str, check: CheckDef) -> list[Finding]:
     statistics = payload.get("statistics", {})
     total = statistics.get("total", {})
     percentage = total.get("percentage", 0)
-    if threshold is not None and percentage > threshold:
-        findings.append(
-            Finding(
-                rule_id="duplication",
-                severity=Severity.ERROR,
-                message=f"Duplication {percentage}% exceeds threshold {threshold}%",
+    if threshold is not None:
+        if percentage > threshold:
+            findings.append(
+                Finding(
+                    rule_id="duplication",
+                    severity=Severity.ERROR,
+                    message=f"Duplication {percentage}% exceeds threshold {threshold}%",
+                )
             )
-        )
+        return findings
+
     duplicates = payload.get("duplicates", [])
     for duplicate in duplicates:
         first = duplicate.get("firstFile", {})
@@ -295,12 +301,12 @@ def _parse_jscpd(stdout: str, check: CheckDef) -> list[Finding]:
                 rule_id="duplicate-block",
                 severity=Severity.WARNING,
                 message=f"Duplicated block ({duplicate.get('lines', 0)} lines, {duplicate.get('format', '')})",
-                location=Location(file=first.get("name", ""), line=first.get("startLoc", {}).get("line")),
+                location=Location(
+                    file=first.get("name", ""), line=first.get("startLoc", {}).get("line")
+                ),
                 snippet=f"also in {second.get('name', '')}",
             )
         )
-    if threshold is not None and percentage <= threshold and not duplicates:
-        return []
     return findings
 
 
@@ -326,7 +332,10 @@ def _parse_shfmt_diff(stdout: str, stderr: str) -> list[Finding]:
                     message="Shell formatting difference",
                     location=Location(file=current_file) if current_file else None,
                     snippet=line[:200],
-                    fix=FixHint(description="Run shfmt -w", command=f"shfmt -w {current_file}" if current_file else "shfmt -w"),
+                    fix=FixHint(
+                        description="Run shfmt -w",
+                        command=f"shfmt -w {current_file}" if current_file else "shfmt -w",
+                    ),
                 )
             )
     if not findings and text.strip():
@@ -347,7 +356,11 @@ def _parse_mdformat(stdout: str, stderr: str) -> list[Finding]:
         return []
     findings: list[Finding] = []
     for line in text.splitlines():
-        if "would be reformatted" in line.lower() or "failed" in line.lower() or line.endswith(".md"):
+        if (
+            "would be reformatted" in line.lower()
+            or "failed" in line.lower()
+            or line.endswith(".md")
+        ):
             findings.append(
                 Finding(
                     rule_id="format",
@@ -414,7 +427,9 @@ def _parse_semgrep(stdout: str) -> list[Finding]:
         findings.append(
             Finding(
                 rule_id=item.get("check_id", "semgrep"),
-                severity=Severity.ERROR if extra.get("severity", "").upper() in {"ERROR", "HIGH"} else Severity.WARNING,
+                severity=Severity.ERROR
+                if extra.get("severity", "").upper() in {"ERROR", "HIGH"}
+                else Severity.WARNING,
                 message=extra.get("message", metadata.get("message", "semgrep finding")),
                 location=Location(
                     file=item.get("path", ""),
@@ -448,7 +463,9 @@ def _parse_deadcode(stdout: str, stderr: str) -> list[Finding]:
                 )
             )
     if not findings and re.search(r"DC\d+", text):
-        findings.append(Finding(rule_id="deadcode", severity=Severity.ERROR, message=text.strip()[:500]))
+        findings.append(
+            Finding(rule_id="deadcode", severity=Severity.ERROR, message=text.strip()[:500])
+        )
     return findings
 
 
@@ -501,10 +518,14 @@ def _parse_pytest(stdout: str, stderr: str) -> list[Finding]:
     fail_pattern = re.compile(r"^(?P<file>[^\s]+):(?P<line>\d+):\s*(?P<message>.+)$")
     for line in text.splitlines():
         if line.startswith("FAILED ") or " FAILED" in line:
-            findings.append(Finding(rule_id="pytest", severity=Severity.ERROR, message=line.strip()))
+            findings.append(
+                Finding(rule_id="pytest", severity=Severity.ERROR, message=line.strip())
+            )
             continue
         match = fail_pattern.match(line.strip())
-        if match and ("error" in match.group("message").lower() or "failed" in match.group("message").lower()):
+        if match and (
+            "error" in match.group("message").lower() or "failed" in match.group("message").lower()
+        ):
             findings.append(
                 Finding(
                     rule_id="pytest",
@@ -514,9 +535,15 @@ def _parse_pytest(stdout: str, stderr: str) -> list[Finding]:
                 )
             )
     if not findings:
-        summary = [line for line in text.splitlines() if "failed" in line.lower() or "error" in line.lower()]
+        summary = [
+            line
+            for line in text.splitlines()
+            if "failed" in line.lower() or "error" in line.lower()
+        ]
         for line in summary[-3:]:
-            findings.append(Finding(rule_id="pytest", severity=Severity.ERROR, message=line.strip()))
+            findings.append(
+                Finding(rule_id="pytest", severity=Severity.ERROR, message=line.strip())
+            )
     return findings
 
 
@@ -574,13 +601,20 @@ def _parse_markdownlint(stdout: str, stderr: str) -> list[Finding]:
     except json.JSONDecodeError:
         return _parse_cli_text(stdout, stderr)
     findings: list[Finding] = []
-    for file_path, items in payload.items():
-        for item in items:
+    if isinstance(payload, list):
+        for item in payload:
+            if not isinstance(item, dict):
+                continue
+            file_path = item.get("fileName", item.get("file", ""))
             findings.append(
                 Finding(
-                    rule_id=item.get("ruleNames", ["markdownlint"])[0] if item.get("ruleNames") else "markdownlint",
+                    rule_id=item.get("ruleNames", ["markdownlint"])[0]
+                    if item.get("ruleNames")
+                    else "markdownlint",
                     severity=Severity.ERROR,
-                    message=item.get("ruleDescription", item.get("ruleInformation", "markdownlint finding")),
+                    message=item.get(
+                        "ruleDescription", item.get("ruleInformation", "markdownlint finding")
+                    ),
                     location=Location(
                         file=file_path,
                         line=item.get("lineNumber"),
@@ -588,6 +622,26 @@ def _parse_markdownlint(stdout: str, stderr: str) -> list[Finding]:
                     ),
                 )
             )
+        return findings
+    if isinstance(payload, dict):
+        for file_path, items in payload.items():
+            for item in items:
+                findings.append(
+                    Finding(
+                        rule_id=item.get("ruleNames", ["markdownlint"])[0]
+                        if item.get("ruleNames")
+                        else "markdownlint",
+                        severity=Severity.ERROR,
+                        message=item.get(
+                            "ruleDescription", item.get("ruleInformation", "markdownlint finding")
+                        ),
+                        location=Location(
+                            file=file_path,
+                            line=item.get("lineNumber"),
+                            column=item.get("columnNumber"),
+                        ),
+                    )
+                )
     return findings
 
 

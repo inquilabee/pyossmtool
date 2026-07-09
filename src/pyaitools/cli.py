@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-from enum import Enum
 from pathlib import Path
 from typing import Optional
 
@@ -22,12 +21,6 @@ gates_app = typer.Typer(help="Gate library utilities")
 app.add_typer(list_app, name="list")
 app.add_typer(gate_app, name="gate")
 app.add_typer(gates_app, name="gates")
-
-
-class ListKind(str, Enum):
-    tools = "tools"
-    checks = "checks"
-    suites = "suites"
 
 
 def _project_root() -> Path:
@@ -113,7 +106,9 @@ def run(
     check: Optional[str] = typer.Option(None, "--check", help="Single check id to run"),
     target: Optional[str] = typer.Option(None, "--target", help="Target path for single check"),
     fail_fast: bool = typer.Option(False, "--fail-fast", help="Stop at first failure"),
-    verbose: bool = typer.Option(False, "--verbose", help="Print commands and keep raw artifacts on success"),
+    verbose: bool = typer.Option(
+        False, "--verbose", help="Print commands and keep raw artifacts on success"
+    ),
 ) -> None:
     registry = _registry()
     project_root = _project_root()
@@ -158,6 +153,18 @@ def run(
 
 def main() -> None:
     app()
+
+
+# Typer sub-app commands are registered via decorators; keep references for static analysis.
+_TYPER_COMMANDS = (
+    list_tools,
+    list_checks,
+    list_suites,
+    gates_lib_path,
+    gate_init,
+    export_schema,
+    install,
+)
 
 
 if __name__ == "__main__":

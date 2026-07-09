@@ -52,7 +52,7 @@ pyaitools run --check gate.module-size --target src/
 
 ## Layout
 
-```
+```text
 .pyaitools/
   gates/                 # your bash scripts
     module-size.sh
@@ -68,9 +68,9 @@ Project catalog entries **override** bundled checks with the same id.
 ## Gate script contract
 
 1. Source `defaults/gates/lib.sh` via `pyaitools gates lib-path`
-2. Call `gate_init "<name>"`
-3. Use `gate_fail` / `gate_warn` for findings
-4. Call `gate_finish` (exits 0 on pass, 1 on fail)
+1. Call `gate_init "<name>"`
+1. Use `gate_fail` / `gate_warn` for findings
+1. Call `gate_finish` (exits 0 on pass, 1 on fail)
 
 ### Environment (set by runner)
 
@@ -80,6 +80,10 @@ Project catalog entries **override** bundled checks with the same id.
 | `PYAITOOLS_TARGET` | Resolved scan target for this check |
 | `PYAITOOLS_CHECK_ID` | Catalog check id |
 | `PYAITOOLS_REPORT` | Path to write structured JSON findings |
+| `PYAITOOLS_IGNORE_PROFILES` | Newline-separated ignore profile files (`.gitignore` syntax) |
+| `PYAITOOLS_IGNORE_PATHS` | Newline-separated repo-relative paths/globs to skip |
+
+Use `gate_path_ignored "<repo-relative-path>"` in bash gates to skip ignored files.
 
 ### Structured output
 

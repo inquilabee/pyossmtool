@@ -9,8 +9,6 @@ import yaml
 from pyaitools.models import CheckDef, ProjectConfig, SuiteDef, ToolDef
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[2]
-CATALOG_ROOT = PACKAGE_ROOT / "catalog"
-SUITES_ROOT = PACKAGE_ROOT / "suites"
 PROJECT_CATALOG = ".pyaitools/catalog"
 PROJECT_SUITES = ".pyaitools/suites"
 
@@ -77,6 +75,3 @@ class Registry:
         with config_path.open(encoding="utf-8") as handle:
             data = yaml.safe_load(handle) or {}
         return ProjectConfig.model_validate(data)
-
-    def project_gate_checks(self) -> list[CheckDef]:
-        return [check for check in self.checks.values() if check.tool == "script"]

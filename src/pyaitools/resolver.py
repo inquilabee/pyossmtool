@@ -127,14 +127,6 @@ class BinaryResolver:
                 return matches[-1]
         return None
 
-    def managed_env_path(self) -> Path:
-        if self.local_tools_root.exists():
-            return self.local_tools_root
-        return self.cache_root
-
-    def managed_bin_dir(self) -> Path:
-        return self.managed_env_path() / "bin"
-
     def prepend_managed_path(self, env: dict[str, str] | None = None) -> dict[str, str]:
         merged = dict(env or os.environ)
         paths = [str(path) for path in self._venv_bin_dirs()]

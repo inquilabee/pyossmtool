@@ -12,6 +12,8 @@ from typing import Any
 
 import yaml
 
+from pyaitools.ignore import EffectiveIgnores, ignores_from_env
+
 ACRONYM_RE = re.compile(r"\b[A-Z]{2,}\b")
 FENCED_CODE_BLOCK_RE = re.compile(r"(`{3,})[\s\S]*?\1", re.DOTALL)
 INLINE_CODE_RE = re.compile(r"`[^`]+`")
@@ -182,7 +184,7 @@ def load_allowlist(path: Path) -> set[str]:
     if not isinstance(raw, dict):
         msg = f"acronym allowlist must be a YAML mapping: {path}"
         raise ValueError(msg)
-    return set(raw.keys())
+    return {str(key) for key in raw}
 
 
 def find_violations_in_line(line: str, *, allowlisted: set[str]) -> list[str]:
@@ -195,7 +197,9 @@ def find_violations_in_line(line: str, *, allowlisted: set[str]) -> list[str]:
     return tokens
 
 
-def find_violations_in_text(text: str, *, path: str, allowlisted: set[str]) -> list[AcronymViolation]:
+def find_violations_in_text(
+    text: str, *, path: str, allowlisted: set[str]
+) -> list[AcronymViolation]:
     prose = strip_markdown_code(text)
     violations: list[AcronymViolation] = []
     for line_no, line in enumerate(prose.splitlines(), start=1):
@@ -221,11 +225,14 @@ def scan_paths(
     repo_root: Path,
     allowlist_path: Path,
     scan_roots: tuple[str, ...],
+    ignores: EffectiveIgnores | None = None,
 ) -> list[AcronymViolation]:
     allowlisted = load_allowlist(allowlist_path)
     violations: list[AcronymViolation] = []
     for file_path in iter_markdown_files(scan_roots, repo_root):
         rel = file_path.relative_to(repo_root).as_posix()
+        if ignores and ignores.is_ignored(rel):
+            continue
         text = file_path.read_text(encoding="utf-8")
         violations.extend(find_violations_in_text(text, path=rel, allowlisted=allowlisted))
     return violations
@@ -265,7 +272,12 @@ def run_gate(
     if not allowlist_path.is_absolute():
         allowlist_path = root / allowlist_path
 
-    violations = scan_paths(repo_root=root, allowlist_path=allowlist_path, scan_roots=scan_roots)
+    violations = scan_paths(
+        repo_root=root,
+        allowlist_path=allowlist_path,
+        scan_roots=scan_roots,
+        ignores=ignores_from_env(root),
+    )
     if report_path:
         report_path.parent.mkdir(parents=True, exist_ok=True)
         payload = {"findings": findings_from_violations(violations)}

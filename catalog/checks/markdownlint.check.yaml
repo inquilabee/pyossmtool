@@ -4,8 +4,10 @@ name: Markdownlint
 description: Lint Markdown files for style issues.
 target_key: markdown
 argv:
+  - -c
+  - "{config}"
+  - -j
   - "{target}"
-  - --json
 parser: markdownlint_json
 success:
   exit_codes: [0, 1]

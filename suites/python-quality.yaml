@@ -5,6 +5,6 @@ env: auto
 targets:
   python: src/
 checks:
-  - id: ruff.lint
   - id: ruff.format
+  - id: ruff.lint
   - id: ty.check

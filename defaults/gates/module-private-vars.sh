@@ -57,6 +57,9 @@ for scan_dir in "${SCAN_ROOTS[@]}"; do
 	[[ -d ${scan_dir} ]] || continue
 	while IFS= read -r -d '' file; do
 		rel="${file#./}"
+		if gate_path_ignored "${rel}"; then
+			continue
+		fi
 		if is_allowlisted "${rel}"; then
 			continue
 		fi

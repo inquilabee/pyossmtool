@@ -13,8 +13,8 @@ targets:
   repo: .
   dockerfile: Dockerfile
 checks:
-  - id: ruff.lint
   - id: ruff.format
+  - id: ruff.lint
   - id: ruff.unused
   - id: ty.check
   - id: bandit.scan
@@ -26,8 +26,8 @@ checks:
   - id: radon.cc
   - id: radon.mi
   - id: jscpd.duplication
-  - id: shellcheck
   - id: shfmt.format
+  - id: shellcheck
   - id: mdformat.format
   - id: markdownlint.check
   - id: yamlfmt.format

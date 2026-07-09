@@ -2,6 +2,15 @@ id: reslab-parity
 name: ResLab Parity Reference
 description: Alias for the standard suite — full reslab-equivalent CLI tool coverage.
 env: auto
+ignore-profile:
+  - .gitignore
+  - .cursorignore
+ignore-paths:
+  - .pyaitools/
+  - venv/
+  - .venv/
+  - reports/
+  - sample_files/
 targets:
   python: src/
   tests: tests/
@@ -13,12 +22,13 @@ targets:
   repo: .
   dockerfile: Dockerfile
 checks:
-  - id: ruff.lint
+  # Format first, then lint
   - id: ruff.format
+  - id: ruff.lint
   - id: ruff.unused
   - id: ty.check
-  - id: shellcheck
   - id: shfmt.format
+  - id: shellcheck
   - id: bandit.scan
   - id: gitleaks.secrets
   - id: semgrep.scan

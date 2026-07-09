@@ -36,10 +36,10 @@ Sources: `docs/engineering/platform/build-pipeline.md`, `pyproject.toml`, `.pre-
 ## How reslab wires tools together
 
 1. **Declarative config** — `pyproject.toml` holds ruff, ty, coverage, mutmut, deadcode, pydeps settings.
-2. **Gate scripts** — `bin/gates/*.sh` wrap each tool with paths, thresholds, and exit codes.
-3. **Pre-commit** — `.pre-commit-config.yaml` + Trunk (`bin/gates/trunk-check-pre-commit.sh`) for fast feedback.
-4. **CI pipeline** — `make pipeline` / `bin/gates/pre-push-pipeline.sh` runs the full enforcing suite.
-5. **Reports directory** — machine-readable JSON/XML + human-readable `.txt` under `reports/`.
+1. **Gate scripts** — `bin/gates/*.sh` wrap each tool with paths, thresholds, and exit codes.
+1. **Pre-commit** — `.pre-commit-config.yaml` + Trunk (`bin/gates/trunk-check-pre-commit.sh`) for fast feedback.
+1. **CI pipeline** — `make pipeline` / `bin/gates/pre-push-pipeline.sh` runs the full enforcing suite.
+1. **Reports directory** — machine-readable JSON/XML + human-readable `.txt` under `reports/`.
 
 ## pyaitools prototype status
 
@@ -68,9 +68,9 @@ Reports land in `reports/<tool-id>/<timestamp>/raw_output.*`.
 ## Recommended next steps for pyaitools
 
 1. **Mirror reslab's full tool list** — add YAML configs for semgrep, deadcode, pydeps, bandit (done), coverage, mutmut.
-2. **Shared config bundle** — one `quality-suite.yaml` that lists tool IDs, target paths, and thresholds (shareable across repos).
-3. **Aggregate report** — single `reports/summary.json` combining pass/fail from all tools (reslab does this via `bin/dev/quality-trend.sh` / `summary.json`).
-4. **Exit-code policy** — distinguish advisory vs enforcing tools (reslab uses fail-fast pre-commit but report-only deadcode in review).
+1. **Shared config bundle** — one `quality-suite.yaml` that lists tool IDs, target paths, and thresholds (shareable across repos).
+1. **Aggregate report** — single `reports/summary.json` combining pass/fail from all tools (reslab does this via `bin/dev/quality-trend.sh` / `summary.json`).
+1. **Exit-code policy** — distinguish advisory vs enforcing tools (reslab uses fail-fast pre-commit but report-only deadcode in review).
 
 ## Why this matters for AI guardrails
 

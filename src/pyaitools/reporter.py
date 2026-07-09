@@ -14,7 +14,6 @@ from pyaitools.models import (
     Remediation,
     ToolDef,
     summarize_findings,
-    utc_now,
 )
 
 
@@ -46,10 +45,16 @@ class Reporter:
         raw_stdout_path.write_text(stdout, encoding="utf-8")
         raw_stderr_path.write_text(stderr, encoding="utf-8")
 
+        cov_target = (
+            check.policy.coverage_source
+            if check.policy and check.policy.coverage_source
+            else "src/"
+        )
         remediation = Remediation(
             docs_url=tool.documentation_url,
             suggested_commands=[
-                cmd.format(target=target) for cmd in check.remediation.get("suggested_commands", [])
+                cmd.format(target=target, cov=cov_target)
+                for cmd in check.remediation.get("suggested_commands", [])
             ],
         )
         if not remediation.suggested_commands:
@@ -92,7 +97,6 @@ class Reporter:
         if check.id == "ty.check":
             return [f"{tool.binary} check {target}"]
         if check.tool == "script" and check.script:
-            script = check.script.removeprefix("bundled:")
             if check.script.startswith("bundled:"):
                 return [f"pyaitools run --check {check.id} --target {target}"]
             return [f"./{check.script}"]

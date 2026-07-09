@@ -64,6 +64,49 @@ gate_warn() {
 	echo "WARN ${rule_id}: ${message}" >&2
 }
 
+gate_path_ignored() {
+	local rel_path="${1#./}"
+	"${PYAITOOLS_PYTHON:-python3}" - "${rel_path}" <<'PY'
+import fnmatch
+import os
+import sys
+from pathlib import Path
+
+try:
+    import pathspec
+except ImportError:
+    pathspec = None
+
+rel = sys.argv[1].replace("\\", "/").lstrip("./")
+patterns: list[str] = [
+    p.strip() for p in os.environ.get("PYAITOOLS_IGNORE_PATHS", "").splitlines() if p.strip()
+]
+for profile in os.environ.get("PYAITOOLS_IGNORE_PROFILES", "").splitlines():
+    path = Path(profile.strip())
+    if not path.is_file():
+        continue
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if stripped and not stripped.startswith("#") and not stripped.startswith("!"):
+            patterns.append(stripped)
+
+if not patterns:
+    raise SystemExit(1)
+
+if pathspec is not None:
+    matcher = pathspec.PathSpec.from_lines("gitignore", patterns)
+    raise SystemExit(0 if matcher.match_file(rel) else 1)
+
+for pattern in patterns:
+    normalized = pattern.rstrip("/")
+    if rel == normalized or rel.startswith(f"{normalized}/"):
+        raise SystemExit(0)
+    if "*" in pattern and fnmatch.fnmatch(rel, pattern):
+        raise SystemExit(0)
+raise SystemExit(1)
+PY
+}
+
 gate_finish() {
 	if ((GATE_FINDING_COUNT > 0)); then
 		echo "gate '${GATE_NAME}' failed with ${GATE_FINDING_COUNT} finding(s)" >&2

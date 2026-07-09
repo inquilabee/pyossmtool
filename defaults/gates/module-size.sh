@@ -28,6 +28,9 @@ for scan_root in "${SCAN_ROOTS[@]}"; do
 	[[ -d ${scan_root} ]] || continue
 	while IFS= read -r -d '' file; do
 		rel="${file#./}"
+		if gate_path_ignored "${rel}"; then
+			continue
+		fi
 		loc="$(count_non_blank_lines "${file}")"
 		if ((loc > PORTFOLIO_MAX)) && ! is_allowlisted "${rel}"; then
 			gate_fail "module-size" "${rel} has ${loc} lines (portfolio cap ${PORTFOLIO_MAX})" "${rel}" "1"
@@ -44,6 +47,9 @@ if git rev-parse --verify "${BASE_BRANCH}" >/dev/null 2>&1; then
 	mapfile -t new_files < <(git diff --name-only --diff-filter=A "${MERGE_BASE}...HEAD" -- "${new_file_globs[@]}" | grep '\.py$' || true)
 	for rel in "${new_files[@]}"; do
 		[[ -f ${rel} ]] || continue
+		if gate_path_ignored "${rel}"; then
+			continue
+		fi
 		loc="$(count_non_blank_lines "${rel}")"
 		if ((loc > NEW_FILE_MAX)) && ! is_allowlisted "${rel}"; then
 			gate_fail "module-size" "${rel} has ${loc} lines (new-file cap ${NEW_FILE_MAX})" "${rel}" "1"

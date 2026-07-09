@@ -8,3 +8,5 @@ rules:
   truthy:
     allowed-values: ["true", "false", "on", "off"]
     check-keys: false
+  brackets:
+    forbid: false

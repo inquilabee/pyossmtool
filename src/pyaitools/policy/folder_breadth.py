@@ -5,9 +5,11 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+from pyaitools.ignore import EffectiveIgnores, ignores_from_env
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,6 +30,13 @@ class FolderBreadthReport:
     worst_leaf_count: int
     violations: tuple[DirBreadthViolation, ...]
 
+    def report_metadata(self) -> dict[str, int | str]:
+        return {
+            "leaf_dirs_scanned": self.leaf_dirs_scanned,
+            "worst_leaf_dir": self.worst_leaf_dir,
+            "worst_leaf_count": self.worst_leaf_count,
+        }
+
 
 SKIP_DIR_NAMES = frozenset({"__pycache__"})
 
@@ -43,7 +52,9 @@ def load_allowlist(path: Path) -> set[str]:
     return entries
 
 
-def settings_from_config(config: dict[str, Any]) -> tuple[int, tuple[str, ...], tuple[str, ...], bool]:
+def settings_from_config(
+    config: dict[str, Any],
+) -> tuple[int, tuple[str, ...], tuple[str, ...], bool]:
     max_allowed = int(config.get("max_allowed", 12))
     scan_roots = tuple(str(item) for item in config.get("scan_roots", ["src/"]))
     extensions_raw = config.get("extensions", [".py", ".md", ".yaml", ".sh"])
@@ -93,6 +104,7 @@ def scan_folder_breadth(
     scan_roots: tuple[str, ...],
     extensions: tuple[str, ...],
     allowlist: set[str],
+    ignores: EffectiveIgnores | None = None,
 ) -> FolderBreadthReport:
     violations: list[DirBreadthViolation] = []
     dirs_scanned = 0
@@ -105,6 +117,8 @@ def scan_folder_breadth(
             rel = directory.relative_to(root).as_posix()
             if is_allowlisted(rel, allowlist):
                 continue
+            if ignores and ignores.is_ignored(rel):
+                continue
             file_count = count_direct_files(directory, extensions)
             if file_count == 0:
                 continue
@@ -113,7 +127,9 @@ def scan_folder_breadth(
                 worst_count = file_count
                 worst_path = rel
             if file_count > max_allowed:
-                violations.append(DirBreadthViolation(path=rel, count=file_count, max_allowed=max_allowed))
+                violations.append(
+                    DirBreadthViolation(path=rel, count=file_count, max_allowed=max_allowed)
+                )
 
     violations.sort(key=lambda item: (-item.count, item.path))
     return FolderBreadthReport(
@@ -162,11 +178,12 @@ def run_gate(
         scan_roots=scan_roots,
         extensions=extensions,
         allowlist=allowlist,
+        ignores=ignores_from_env(root),
     )
 
     if report_path:
         report_path.parent.mkdir(parents=True, exist_ok=True)
-        payload = {"findings": findings_from_report(report)}
+        payload = {"findings": findings_from_report(report), **report.report_metadata()}
         report_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
     if enforcing and report.leaf_dirs_over_max > 0:
