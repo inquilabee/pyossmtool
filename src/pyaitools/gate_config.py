@@ -8,10 +8,10 @@ from typing import Any
 import yaml
 
 from pyaitools.models import CheckDef, ConfigMode, GateConfigSpec, ProjectConfig
-from pyaitools.registry import PACKAGE_ROOT
+from pyaitools.registry import BUNDLE_ROOT
 
-BUNDLED_CONFIGS = PACKAGE_ROOT / "defaults" / "configs"
-BUNDLED_ALLOWLISTS = PACKAGE_ROOT / "defaults" / "allowlists"
+BUNDLED_CONFIGS = BUNDLE_ROOT / "defaults" / "configs"
+BUNDLED_ALLOWLISTS = BUNDLE_ROOT / "defaults" / "allowlists"
 
 
 def resolve_gate_config_path(

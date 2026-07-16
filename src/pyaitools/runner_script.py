@@ -17,7 +17,7 @@ from pyaitools.ignore import (
     resolve_effective_ignores,
 )
 from pyaitools.models import CheckDef, SuiteCheckRef, SuiteDef
-from pyaitools.registry import PACKAGE_ROOT
+from pyaitools.registry import BUNDLE_ROOT
 
 if TYPE_CHECKING:
     from pyaitools.runner import Runner
@@ -124,7 +124,7 @@ def resolve_script_path(runner: Runner, check: CheckDef) -> Path:
     if not check.script:
         raise OSError("missing script path")
     if check.script.startswith("bundled:"):
-        return (PACKAGE_ROOT / "defaults" / check.script.removeprefix("bundled:")).resolve()
+        return (BUNDLE_ROOT / "defaults" / check.script.removeprefix("bundled:")).resolve()
     script_path = Path(check.script)
     if not script_path.is_absolute():
         script_path = (runner.project_root / script_path).resolve()

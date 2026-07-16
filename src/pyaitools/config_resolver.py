@@ -12,9 +12,9 @@ from pyaitools.models import (
     ToolConfigSpec,
     ToolDef,
 )
-from pyaitools.registry import PACKAGE_ROOT
+from pyaitools.registry import BUNDLE_ROOT
 
-DEFAULTS_DIR = PACKAGE_ROOT / "defaults" / "configs"
+DEFAULTS_DIR = BUNDLE_ROOT / "defaults" / "configs"
 
 
 class ConfigResolver:
@@ -83,7 +83,7 @@ class ConfigResolver:
 
     def _bundled_path(self, config: ToolConfigSpec) -> Path | None:
         if config.bundled_path:
-            path = PACKAGE_ROOT / config.bundled_path
+            path = BUNDLE_ROOT / config.bundled_path
             return path if path.exists() else None
         if config.bundled:
             path = self.defaults_dir / config.bundled

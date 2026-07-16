@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from pyaitools.gate_config import gate_env_from_config, load_gate_config, resolve_gate_config_path
-from pyaitools.registry import PACKAGE_ROOT, Registry
+from pyaitools.registry import BUNDLE_ROOT, Registry
 
 
 def test_bundled_gate_config_loads(tmp_path: Path) -> None:
@@ -19,7 +19,7 @@ def test_gate_env_flattens_lists() -> None:
 
 
 def test_bundled_script_path_convention() -> None:
-    script = PACKAGE_ROOT / "defaults" / "gates" / "module-size.sh"
+    script = BUNDLE_ROOT / "defaults" / "gates" / "module-size.sh"
     assert script.exists()
 
 

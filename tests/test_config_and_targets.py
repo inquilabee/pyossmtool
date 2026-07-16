@@ -37,7 +37,9 @@ def _tool(*, config: ToolConfigSpec | None = None, tool_id: str = "demo") -> Too
 
 
 def _defaults_dir() -> Path:
-    return Path(__file__).resolve().parents[1] / "defaults" / "configs"
+    from pyaitools.registry import BUNDLE_ROOT
+
+    return BUNDLE_ROOT / "defaults" / "configs"
 
 
 def test_config_auto_uses_bundled_when_repo_has_none(tmp_path: Path) -> None:

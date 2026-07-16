@@ -8,14 +8,14 @@ import yaml
 
 from pyaitools.models import CheckDef, ProjectConfig, SuiteDef, ToolDef
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2]
+BUNDLE_ROOT = Path(__file__).resolve().parent / "bundle"
 PROJECT_CATALOG = ".pyaitools/catalog"
 PROJECT_SUITES = ".pyaitools/suites"
 
 
 class Registry:
     def __init__(self, root: Path | None = None, project_root: Path | None = None) -> None:
-        self.root = root or PACKAGE_ROOT
+        self.root = root or BUNDLE_ROOT
         self.project_root = (project_root or Path.cwd()).resolve()
         self.catalog_root = self.root / "catalog"
         self.suites_root = self.root / "suites"

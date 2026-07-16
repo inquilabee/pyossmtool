@@ -6,9 +6,9 @@ import re
 import stat
 from pathlib import Path
 
-from pyaitools.registry import PACKAGE_ROOT
+from pyaitools.registry import BUNDLE_ROOT
 
-GATES_LIB = PACKAGE_ROOT / "defaults" / "gates" / "lib.sh"
+GATES_LIB = BUNDLE_ROOT / "defaults" / "gates" / "lib.sh"
 PROJECT_GATES_DIR = ".pyaitools/gates"
 PROJECT_CHECKS_DIR = ".pyaitools/catalog/checks"
 
