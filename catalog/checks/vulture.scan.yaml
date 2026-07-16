@@ -13,4 +13,4 @@ policy:
   min_confidence: 80
 remediation:
   suggested_commands:
-    - "vulture {target}"
+    - vulture {target}

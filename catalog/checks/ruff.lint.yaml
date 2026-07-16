@@ -12,4 +12,4 @@ success:
   exit_codes: [0]
 remediation:
   suggested_commands:
-    - "ruff check --fix {target}"
+    - ruff check --fix {target}

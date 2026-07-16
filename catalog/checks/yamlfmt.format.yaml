@@ -12,4 +12,4 @@ success:
   exit_codes: [0]
 remediation:
   suggested_commands:
-    - "yamlfmt {target}"
+    - yamlfmt {target}

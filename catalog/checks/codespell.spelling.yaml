@@ -9,4 +9,4 @@ success:
   exit_codes: [0]
 remediation:
   suggested_commands:
-    - "codespell -w {target}"
+    - codespell -w {target}

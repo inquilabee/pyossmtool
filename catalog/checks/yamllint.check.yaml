@@ -13,4 +13,4 @@ success:
   exit_codes: [0, 1]
 remediation:
   suggested_commands:
-    - "yamllint {target}"
+    - yamllint {target}

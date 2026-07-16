@@ -11,4 +11,4 @@ success:
   exit_codes: [0, 1, 2]
 remediation:
   suggested_commands:
-    - "pydeps {target} --show-cycles --no-show"
+    - pydeps {target} --show-cycles --no-show

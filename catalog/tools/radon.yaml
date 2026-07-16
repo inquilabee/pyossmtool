@@ -3,6 +3,6 @@ name: Radon
 description: Code metrics for cyclomatic complexity and maintainability index.
 install:
   method: pip
-  package: "radon>=6.0.0"
+  package: radon>=6.0.0
 binary: radon
 documentation_url: https://radon.readthedocs.io/

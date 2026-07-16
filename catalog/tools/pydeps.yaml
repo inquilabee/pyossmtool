@@ -3,6 +3,6 @@ name: pydeps
 description: Python module dependency analysis and cycle detection.
 install:
   method: pip
-  package: "pydeps>=3.0"
+  package: pydeps>=3.0
 binary: pydeps
 documentation_url: https://github.com/thebjorn/pydeps

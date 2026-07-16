@@ -3,6 +3,6 @@ name: mutmut
 description: Mutation testing for Python.
 install:
   method: pip
-  package: "mutmut>=3.6.0"
+  package: mutmut>=3.6.0
 binary: mutmut
 documentation_url: https://mutmut.readthedocs.io/

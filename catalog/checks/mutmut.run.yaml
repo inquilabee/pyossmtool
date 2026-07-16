@@ -9,5 +9,5 @@ success:
   exit_codes: [0]
 remediation:
   suggested_commands:
-    - "mutmut run"
-    - "mutmut results"
+    - mutmut run
+    - mutmut results

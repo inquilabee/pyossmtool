@@ -3,7 +3,7 @@ name: codespell
 description: Fix common misspellings in text files.
 install:
   method: pip
-  package: "codespell>=2.4.0"
+  package: codespell>=2.4.0
 binary: codespell
 documentation_url: https://github.com/codespell-project/codespell
 config:

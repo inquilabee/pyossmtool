@@ -11,4 +11,4 @@ success:
   exit_codes: [0, 1]
 remediation:
   suggested_commands:
-    - "sourcery review {target}"
+    - sourcery review {target}

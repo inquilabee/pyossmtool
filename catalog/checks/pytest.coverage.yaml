@@ -16,4 +16,4 @@ policy:
   coverage_source: src/
 remediation:
   suggested_commands:
-    - "pytest {target} --cov={cov}"
+    - pytest {target} --cov={cov}

@@ -15,4 +15,4 @@ success:
   exit_codes: [0, 1]
 remediation:
   suggested_commands:
-    - "hadolint {target}"
+    - hadolint {target}

@@ -10,4 +10,4 @@ success:
   exit_codes: [0]
 remediation:
   suggested_commands:
-    - "deadcode --no-color {target}"
+    - deadcode --no-color {target}

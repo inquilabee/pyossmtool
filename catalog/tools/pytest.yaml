@@ -3,7 +3,7 @@ name: pytest
 description: Python test runner with optional coverage via pytest-cov plugin.
 install:
   method: pip
-  package: "pytest>=8.0 pytest-cov>=6.0"
+  package: pytest>=8.0 pytest-cov>=6.0
 binary: pytest
 documentation_url: https://docs.pytest.org/
 ignore:

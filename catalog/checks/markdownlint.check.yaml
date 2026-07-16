@@ -14,4 +14,4 @@ success:
   exit_codes: [0, 1]
 remediation:
   suggested_commands:
-    - "markdownlint {target}"
+    - markdownlint {target}
