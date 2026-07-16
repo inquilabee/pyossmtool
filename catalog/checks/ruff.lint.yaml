@@ -2,7 +2,6 @@ id: ruff.lint
 tool: ruff
 name: Ruff Lint
 description: Run ruff check on Python sources.
-target_key: python
 argv:
   - check
   - "{target}"

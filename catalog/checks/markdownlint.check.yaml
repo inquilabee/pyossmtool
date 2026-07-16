@@ -2,7 +2,8 @@ id: markdownlint.check
 tool: markdownlint
 name: Markdownlint
 description: Lint Markdown files for style issues.
-target_key: markdown
+include:
+  - "**/*.{md,markdown}"
 argv:
   - -c
   - "{config}"

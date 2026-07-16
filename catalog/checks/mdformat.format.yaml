@@ -2,7 +2,8 @@ id: mdformat.format
 tool: mdformat
 name: mdformat Check
 description: Verify Markdown formatting without applying changes.
-target_key: markdown
+include:
+  - "**/*.{md,markdown}"
 argv:
   - --check
   - "{target}"

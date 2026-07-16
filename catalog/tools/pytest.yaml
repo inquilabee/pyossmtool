@@ -6,3 +6,6 @@ install:
   package: "pytest>=8.0 pytest-cov>=6.0"
 binary: pytest
 documentation_url: https://docs.pytest.org/
+ignore:
+  kind: flag_pairs
+  flag: --ignore

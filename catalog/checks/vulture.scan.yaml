@@ -2,7 +2,6 @@ id: vulture.scan
 tool: vulture
 name: Vulture Scan
 description: Find dead Python code with high confidence.
-target_key: python
 argv:
   - "{target}"
   - --min-confidence

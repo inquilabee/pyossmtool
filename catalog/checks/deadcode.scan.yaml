@@ -2,7 +2,6 @@ id: deadcode.scan
 tool: deadcode
 name: Deadcode Scan
 description: Find unused Python definitions.
-target_key: python
 argv:
   - --no-color
   - "{target}"

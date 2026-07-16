@@ -6,3 +6,6 @@ install:
   package: "vulture>=2.14"
 binary: vulture
 documentation_url: https://github.com/jendrikseipp/vulture
+ignore:
+  kind: prefix
+  prefix: "--exclude="

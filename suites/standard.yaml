@@ -1,7 +1,10 @@
 id: standard
 name: Standard Quality Suite
-description: Full portable quality gate set for new Python projects (matches reslab tool coverage).
+description:
+  Full portable quality gate set for new Python projects (matches reslab
+  tool coverage).
 env: auto
+target: .
 ignore-profile:
   - .gitignore
   - .cursorignore
@@ -11,49 +14,32 @@ ignore-paths:
   - .venv/
   - reports/
   - sample_files/
-targets:
-  python: src/
-  tests: tests/
-  coverage: src/
-  shell: bin/
-  markdown: .
-  yaml: .
-  prose: .
-  repo: .
-  dockerfile: Dockerfile
 checks:
-  # Python format → lint → types
   - id: ruff.format
   - id: ruff.lint
   - id: ruff.unused
   - id: ty.check
-  # Security
   - id: bandit.scan
   - id: gitleaks.secrets
   - id: semgrep.scan
-  # Dead code
   - id: deadcode.scan
   - id: vulture.scan
-  # Structure
   - id: pydeps.cycles
   - id: radon.cc
   - id: radon.mi
   - id: jscpd.duplication
-  # Shell format → lint
   - id: shfmt.format
   - id: shellcheck
-  # Docs/config format → lint
   - id: mdformat.format
   - id: markdownlint.check
   - id: yamlfmt.format
   - id: yamllint.check
   - id: codespell.spelling
-  # Tests
   - id: pytest.test
+    target: tests/
   - id: pytest.coverage
-  # Docker
+    target: tests/
   - id: hadolint.dockerfile
-  # Structural policy gates
   - id: gate.module-size
   - id: gate.module-private-vars
   - id: gate.folder-breadth

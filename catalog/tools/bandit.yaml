@@ -6,3 +6,11 @@ install:
   package: "bandit>=1.9.0"
 binary: bandit
 documentation_url: https://bandit.readthedocs.io/
+config:
+  flag: -c
+  bundled: bandit.yaml
+  pyproject: [tool, bandit]
+  use_pyproject_as_path: true
+ignore:
+  kind: flag_pairs
+  flag: -x

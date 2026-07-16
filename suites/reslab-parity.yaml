@@ -1,7 +1,10 @@
 id: reslab-parity
 name: ResLab Parity Reference
-description: Alias for the standard suite — full reslab-equivalent CLI tool coverage.
+description:
+  "Alias for the standard suite \u2014 full reslab-equivalent CLI tool\
+  \ coverage."
 env: auto
+target: .
 ignore-profile:
   - .gitignore
   - .cursorignore
@@ -11,18 +14,7 @@ ignore-paths:
   - .venv/
   - reports/
   - sample_files/
-targets:
-  python: src/
-  tests: tests/
-  coverage: src/
-  shell: bin/
-  markdown: .
-  yaml: .
-  prose: .
-  repo: .
-  dockerfile: Dockerfile
 checks:
-  # Format first, then lint
   - id: ruff.format
   - id: ruff.lint
   - id: ruff.unused
@@ -44,5 +36,7 @@ checks:
   - id: yamllint.check
   - id: codespell.spelling
   - id: pytest.test
+    target: tests/
   - id: pytest.coverage
+    target: tests/
   - id: hadolint.dockerfile

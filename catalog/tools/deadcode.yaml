@@ -6,3 +6,6 @@ install:
   package: "deadcode>=2.4.0"
 binary: deadcode
 documentation_url: https://github.com/alanedwardes/deadcode
+ignore:
+  kind: prefix
+  prefix: "--exclude="

@@ -2,7 +2,6 @@ id: bandit.scan
 tool: bandit
 name: Bandit Security Scan
 description: Scan Python code for common security issues.
-target_key: python
 argv:
   - -r
   - "{target}"

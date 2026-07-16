@@ -6,3 +6,6 @@ install:
   package: "shfmt-py>=4.0.0"
 binary: shfmt
 documentation_url: https://github.com/mvdan/sh
+config:
+  repo_files:
+    - .editorconfig

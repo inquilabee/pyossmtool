@@ -1,17 +1,10 @@
 id: extended
 name: Extended Quality Suite
-description: Standard suite plus slow or optional checks (mutation testing, sourcery review).
+description:
+  Standard suite plus slow or optional checks (mutation testing, sourcery
+  review).
 env: auto
-targets:
-  python: src/
-  tests: tests/
-  coverage: src/
-  shell: bin/
-  markdown: .
-  yaml: .
-  prose: .
-  repo: .
-  dockerfile: Dockerfile
+target: .
 checks:
   - id: ruff.format
   - id: ruff.lint
@@ -34,7 +27,9 @@ checks:
   - id: yamllint.check
   - id: codespell.spelling
   - id: pytest.test
+    target: tests/
   - id: pytest.coverage
+    target: tests/
   - id: hadolint.dockerfile
   - id: mutmut.run
   - id: sourcery.review

@@ -2,7 +2,6 @@ id: ruff.format
 tool: ruff
 name: Ruff Format Check
 description: Verify Python formatting without applying changes.
-target_key: python
 argv:
   - format
   - --check

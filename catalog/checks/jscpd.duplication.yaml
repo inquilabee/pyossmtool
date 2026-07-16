@@ -2,7 +2,6 @@ id: jscpd.duplication
 tool: jscpd
 name: JSCPD Duplication Scan
 description: Detect duplicated code blocks above threshold.
-target_key: python
 argv:
   - "{target}"
   - --reporters

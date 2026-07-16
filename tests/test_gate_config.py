@@ -3,11 +3,12 @@ from __future__ import annotations
 from pathlib import Path
 
 from pyaitools.gate_config import gate_env_from_config, load_gate_config, resolve_gate_config_path
-from pyaitools.registry import PACKAGE_ROOT
+from pyaitools.registry import PACKAGE_ROOT, Registry
 
 
 def test_bundled_gate_config_loads(tmp_path: Path) -> None:
-    _, config = load_gate_config("gate.module-size", tmp_path, None)
+    check = Registry().get_check("gate.module-size")
+    _, config = load_gate_config(check, tmp_path, None)
     assert config["portfolio_max_lines"] == 1000
     assert "src/" in config["scan_roots"]
 
@@ -23,13 +24,22 @@ def test_bundled_script_path_convention() -> None:
 
 
 def test_resolve_project_override(tmp_path: Path) -> None:
+    check = Registry().get_check("gate.module-size")
     config_dir = tmp_path / ".pyaitools" / "configs" / "gates"
     config_dir.mkdir(parents=True)
     (config_dir / "gate.module-size.yaml").write_text(
         "portfolio_max_lines: 42\nscan_roots:\n  - custom/\n",
         encoding="utf-8",
     )
-    path = resolve_gate_config_path("gate.module-size", tmp_path, None)
+    path = resolve_gate_config_path(check, tmp_path, None)
+    assert path is not None
     assert path.name == "gate.module-size.yaml"
-    _, data = load_gate_config("gate.module-size", tmp_path, None)
+    _, data = load_gate_config(check, tmp_path, None)
     assert data["portfolio_max_lines"] == 42
+
+
+def test_gate_check_declares_config() -> None:
+    check = Registry().get_check("gate.module-size")
+    assert check.config is not None
+    assert check.config.bundled == "gates/module-size.yaml"
+    assert check.config.allowlist_bundled == "module-size.txt"

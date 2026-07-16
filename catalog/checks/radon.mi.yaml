@@ -2,7 +2,6 @@ id: radon.mi
 tool: radon
 name: Radon Maintainability Index
 description: Fail when module maintainability rank exceeds policy.
-target_key: python
 argv:
   - mi
   - "{target}"

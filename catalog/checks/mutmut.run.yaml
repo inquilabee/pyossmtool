@@ -2,7 +2,6 @@ id: mutmut.run
 tool: mutmut
 name: Mutmut Mutation Testing
 description: Run mutation tests (slow; requires [tool.mutmut] in pyproject.toml).
-target_key: python
 argv:
   - run
 parser: mutmut_text

@@ -68,7 +68,8 @@ def script_gate_argv(
     project_config,
 ) -> list[str]:
     bash = shutil.which("bash") or "/bin/bash"
-    config_path = runner.config_resolver.resolve_config_path(check.tool, project_config)
+    tool = runner.registry.get_tool(check.tool)
+    config_path = runner.config_resolver.resolve_config_path(tool, project_config)
     config_value = str(config_path) if config_path else ""
     return [
         bash,
@@ -100,7 +101,7 @@ def script_gate_env(
     )
     if report_rel:
         env["PYAITOOLS_REPORT"] = str(runner.project_root / report_rel)
-    _config_path, gate_config = load_gate_config(check_id, runner.project_root, project_config)
+    _config_path, gate_config = load_gate_config(check, runner.project_root, project_config)
     resolved_config = runner.project_root / ".pyaitools" / "cache" / f"{check_id}.config.yaml"
     resolved_config.parent.mkdir(parents=True, exist_ok=True)
     resolved_config.write_text(yaml.safe_dump(gate_config, sort_keys=False), encoding="utf-8")

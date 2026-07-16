@@ -2,7 +2,6 @@ id: pytest.test
 tool: pytest
 name: Pytest
 description: Run the project test suite.
-target_key: tests
 argv:
   - "{target}"
   - -q

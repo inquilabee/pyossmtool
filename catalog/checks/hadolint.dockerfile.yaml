@@ -2,7 +2,10 @@ id: hadolint.dockerfile
 tool: hadolint
 name: Hadolint
 description: Lint Dockerfiles.
-target_key: dockerfile
+include:
+  - "**/Dockerfile"
+  - "**/Dockerfile.*"
+  - "**/*.Dockerfile"
 argv:
   - --format
   - json

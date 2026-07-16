@@ -2,7 +2,6 @@ id: sourcery.review
 tool: sourcery
 name: Sourcery Review
 description: Automated code review suggestions (optional; may require Sourcery account).
-target_key: python
 argv:
   - review
   - "{target}"

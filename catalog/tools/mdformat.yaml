@@ -6,3 +6,6 @@ install:
   package: "mdformat>=0.7.0"
 binary: mdformat
 documentation_url: https://github.com/executablebooks/mdformat
+config:
+  repo_files:
+    - .mdformat.toml

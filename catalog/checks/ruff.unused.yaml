@@ -2,7 +2,6 @@ id: ruff.unused
 tool: ruff
 name: Ruff Unused Imports
 description: Detect unused imports and variables (F401, F841).
-target_key: python
 argv:
   - check
   - "{target}"

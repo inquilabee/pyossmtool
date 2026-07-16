@@ -4,18 +4,29 @@ Shell-based policy checks integrated with pyaitools failure reports.
 
 ## Bundled policy gates
 
-| Check | Script | Config |
-|-------|--------|--------|
-| `gate.module-size` | `defaults/gates/module-size.sh` | `defaults/configs/gates/module-size.yaml` |
+| Check                      | Script                                  | Config                                            |
+| -------------------------- | --------------------------------------- | ------------------------------------------------- |
+| `gate.module-size`         | `defaults/gates/module-size.sh`         | `defaults/configs/gates/module-size.yaml`         |
 | `gate.module-private-vars` | `defaults/gates/module-private-vars.sh` | `defaults/configs/gates/module-private-vars.yaml` |
-| `gate.folder-breadth` | `defaults/gates/folder-breadth.sh` | `defaults/configs/gates/folder-breadth.yaml` |
-| `gate.acronym-allowlist` | `defaults/gates/acronym-allowlist.sh` | `defaults/configs/gates/acronym-allowlist.yaml` |
+| `gate.folder-breadth`      | `defaults/gates/folder-breadth.sh`      | `defaults/configs/gates/folder-breadth.yaml`      |
+| `gate.acronym-allowlist`   | `defaults/gates/acronym-allowlist.sh`   | `defaults/configs/gates/acronym-allowlist.yaml`   |
 
 Run via suite `policy` or as part of `standard`.
 
 ### Configure per repo
 
-Override bundled defaults by adding `.pyaitools/configs/gates/<check-id>.yaml`:
+Each gate check declares where config lives (see `config:` on `catalog/checks/gate.*.yaml`):
+
+```yaml
+config:
+  bundled: gates/module-size.yaml
+  project_file: .pyaitools/configs/gates/gate.module-size.yaml
+  allowlist_bundled: module-size.txt
+```
+
+Resolution order: `configs.mode: paths` override → `project_file` if present → `bundled` under `defaults/configs/`.
+
+Override bundled defaults by adding the project file:
 
 ```yaml
 # .pyaitools/configs/gates/gate.module-size.yaml
@@ -25,7 +36,7 @@ scan_roots:
 portfolio_max_lines: 800
 new_file_max_lines: 400
 base_branch: main
-allowlist_file: .tools/module-size-allowlist.txt
+allowlist_file: .pyaitools/allowlists/module-size.txt
 ```
 
 Or set explicit paths in `pyaitools.yaml`:
@@ -36,8 +47,6 @@ configs:
   paths:
     gate.module-size: .pyaitools/configs/gates/gate.module-size.yaml
 ```
-
-Reslab-style `.tools/folder-breadth-config.env` is auto-detected for `gate.folder-breadth`.
 
 Config keys are exported to gate scripts as `GATE_<KEY>` environment variables (lists become space-separated).
 
@@ -74,14 +83,14 @@ Project catalog entries **override** bundled checks with the same id.
 
 ### Environment (set by runner)
 
-| Variable | Meaning |
-|----------|---------|
-| `PYAITOOLS_ROOT` | Repository root |
-| `PYAITOOLS_TARGET` | Resolved scan target for this check |
-| `PYAITOOLS_CHECK_ID` | Catalog check id |
-| `PYAITOOLS_REPORT` | Path to write structured JSON findings |
+| Variable                    | Meaning                                                      |
+| --------------------------- | ------------------------------------------------------------ |
+| `PYAITOOLS_ROOT`            | Repository root                                              |
+| `PYAITOOLS_TARGET`          | Resolved scan target for this check                          |
+| `PYAITOOLS_CHECK_ID`        | Catalog check id                                             |
+| `PYAITOOLS_REPORT`          | Path to write structured JSON findings                       |
 | `PYAITOOLS_IGNORE_PROFILES` | Newline-separated ignore profile files (`.gitignore` syntax) |
-| `PYAITOOLS_IGNORE_PATHS` | Newline-separated repo-relative paths/globs to skip |
+| `PYAITOOLS_IGNORE_PATHS`    | Newline-separated repo-relative paths/globs to skip          |
 
 Use `gate_path_ignored "<repo-relative-path>"` in bash gates to skip ignored files.
 
@@ -96,7 +105,7 @@ Use `gate_path_ignored "<repo-relative-path>"` in bash gates to skip ignored fil
       "rule_id": "module-size",
       "severity": "error",
       "message": "src/foo.py has 1200 lines (cap 1000)",
-      "location": {"file": "src/foo.py", "line": 1}
+      "location": { "file": "src/foo.py", "line": 1 }
     }
   ]
 }
@@ -116,7 +125,6 @@ tool: script
 name: Module Size Gate
 description: Enforce per-file line limits.
 script: .pyaitools/gates/module-size.sh
-target_key: python
 parser: gate_json
 output_file: .pyaitools/reports/gate.module-size.json
 argv: []
@@ -135,7 +143,6 @@ id: gate.module-size
 tool: script
 name: Module Size Gate
 script: bin/gates/module-size-check.sh
-target_key: repo
 parser: script_text
 argv: []
 ```

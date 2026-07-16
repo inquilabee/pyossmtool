@@ -8,7 +8,6 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-
 SCHEMA_VERSION = "1.0"
 
 
@@ -37,6 +36,54 @@ class InstallSpec(BaseModel):
     version: str | None = None
 
 
+class ToolConfigSpec(BaseModel):
+    """Declarative config discovery for a tool (repo-native vs bundled)."""
+
+    flag: str | None = None
+    pass_flag: bool | None = None
+    bundled: str | None = None
+    bundled_path: str | None = None
+    repo_files: list[str] = Field(default_factory=list)
+    repo_dirs: list[str] = Field(default_factory=list)
+    pyproject: list[str] = Field(default_factory=list)
+    use_pyproject_as_path: bool = False
+
+    def should_pass_flag(self) -> bool:
+        if self.pass_flag is not None:
+            return self.pass_flag
+        return bool(self.flag)
+
+
+class IgnoreKind(str, Enum):
+    FLAG_PAIRS = "flag_pairs"
+    PREFIX = "prefix"
+    SKIP_FILE = "skip_file"
+    CONFIG_OVERLAY = "config_overlay"
+
+
+class ExtendFrom(str, Enum):
+    NONE = "none"
+    BASE_CONFIG = "base_config"
+    BASE_OR_PYPROJECT = "base_or_pyproject"
+    PYPROJECT = "pyproject"
+
+
+class ToolIgnoreSpec(BaseModel):
+    """How this tool consumes unified ignore patterns."""
+
+    kind: IgnoreKind
+    flag: str | None = None
+    prefix: str | None = None
+    post_subcommand: bool = False
+    format: str | None = None
+    file: str | None = None
+    key: str | None = None
+    key_style: str = "list"
+    extend_from: ExtendFrom = ExtendFrom.NONE
+    extend_key: str | None = None
+    toml_table: str | None = None
+
+
 class ToolDef(BaseModel):
     id: str
     name: str
@@ -44,6 +91,8 @@ class ToolDef(BaseModel):
     install: InstallSpec
     binary: str
     documentation_url: str | None = None
+    config: ToolConfigSpec | None = None
+    ignore: ToolIgnoreSpec | None = None
 
 
 class SuccessCriteria(BaseModel):
@@ -78,6 +127,14 @@ class IgnoreSpec(BaseModel):
     ignore_paths: list[str] = Field(default_factory=list, alias="ignore-paths")
 
 
+class GateConfigSpec(BaseModel):
+    """Declarative policy-config discovery for script gates."""
+
+    bundled: str | None = None
+    project_file: str | None = None
+    allowlist_bundled: str | None = None
+
+
 class CheckDef(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -88,7 +145,8 @@ class CheckDef(BaseModel):
     argv: list[str] = Field(default_factory=list)
     parser: str
     script: str | None = None
-    target_key: str = "python"
+    include: list[str] = Field(default_factory=list)
+    config: GateConfigSpec | None = None
     success: SuccessCriteria = Field(default_factory=SuccessCriteria)
     policy: CheckPolicy | None = None
     remediation: dict[str, Any] = Field(default_factory=dict)
@@ -120,7 +178,7 @@ class SuiteDef(BaseModel):
     description: str
     env: EnvMode = EnvMode.AUTO
     checks: list[SuiteCheckRef]
-    targets: dict[str, str] = Field(default_factory=dict)
+    target: str = "."
     ignore_profile: list[str] = Field(default_factory=list, alias="ignore-profile")
     ignore_paths: list[str] = Field(default_factory=list, alias="ignore-paths")
 
@@ -130,7 +188,7 @@ class ProjectConfig(BaseModel):
 
     suite: str
     env: EnvMode = EnvMode.AUTO
-    targets: dict[str, str] = Field(default_factory=dict)
+    target: str = "."
     checks: list[SuiteCheckRef] = Field(default_factory=list)
     configs: ConfigSpec = Field(default_factory=ConfigSpec)
     ignore_profile: list[str] = Field(default_factory=list, alias="ignore-profile")

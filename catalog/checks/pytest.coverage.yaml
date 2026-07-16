@@ -2,7 +2,6 @@ id: pytest.coverage
 tool: pytest
 name: Pytest Coverage
 description: Run tests with coverage floor enforcement.
-target_key: tests
 argv:
   - "{target}"
   - --cov={cov}

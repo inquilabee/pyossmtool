@@ -2,7 +2,8 @@ id: yamllint.check
 tool: yamllint
 name: Yamllint
 description: Lint YAML files for syntax and style issues.
-target_key: yaml
+include:
+  - "**/*.{yml,yaml}"
 argv:
   - -f
   - parsable

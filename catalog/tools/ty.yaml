@@ -6,3 +6,17 @@ install:
   package: "ty>=0.0.50"
 binary: ty
 documentation_url: https://docs.astral.sh/ty/
+config:
+  flag: --config
+  bundled: ty.toml
+  pyproject: [tool, ty]
+ignore:
+  kind: config_overlay
+  format: toml
+  file: ty.toml
+  flag: --config
+  key: exclude
+  extend_from: pyproject
+  extend_key: extends
+  toml_table: tool.ty
+  post_subcommand: true

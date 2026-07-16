@@ -3,9 +3,12 @@ tool: script
 name: Module Size Gate
 description: Enforce portfolio and new-file line limits on Python modules.
 script: bundled:gates/module-size.sh
-target_key: python
 parser: gate_json
 output_file: .pyaitools/reports/gate.module-size.json
 argv: []
+config:
+  bundled: gates/module-size.yaml
+  project_file: .pyaitools/configs/gates/gate.module-size.yaml
+  allowlist_bundled: module-size.txt
 success:
   exit_codes: [0]

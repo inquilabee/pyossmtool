@@ -102,7 +102,7 @@ def test_materialize_yamllint_merges_base_config(tmp_path: Path) -> None:
     )
     ignores = EffectiveIgnores(path_patterns=["venv/", "reports/"])
     material = materialize_for_tool(
-        "yamllint",
+        Registry().get_tool("yamllint"),
         ignores,
         project_root=tmp_path,
         check_id="yamllint.check",
@@ -123,7 +123,7 @@ def test_materialize_yamlfmt_merges_exclude(tmp_path: Path) -> None:
     )
     ignores = EffectiveIgnores(path_patterns=["venv/"])
     material = materialize_for_tool(
-        "yamlfmt",
+        Registry().get_tool("yamlfmt"),
         ignores,
         project_root=tmp_path,
         check_id="yamlfmt.format",
@@ -139,3 +139,12 @@ def test_registry_loads_suite_ignore_fields() -> None:
     suite = registry.get_suite("reslab-parity")
     assert ".gitignore" in suite.ignore_profile
     assert ".pyaitools/" in suite.ignore_paths
+
+
+def test_tool_ignore_declared_on_catalog() -> None:
+    ruff = Registry().get_tool("ruff")
+    assert ruff.ignore is not None
+    assert ruff.ignore.kind.value == "config_overlay"
+    bandit = Registry().get_tool("bandit")
+    assert bandit.ignore is not None
+    assert bandit.ignore.flag == "-x"

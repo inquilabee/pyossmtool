@@ -2,7 +2,6 @@ id: radon.cc
 tool: radon
 name: Radon Cyclomatic Complexity
 description: Fail when function complexity rank exceeds policy.
-target_key: python
 argv:
   - cc
   - "{target}"

@@ -2,8 +2,7 @@ id: python-quality
 name: Python Quality
 description: Core Python lint, format, and type checks.
 env: auto
-targets:
-  python: src/
+target: src/
 checks:
   - id: ruff.format
   - id: ruff.lint

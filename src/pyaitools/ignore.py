@@ -8,7 +8,7 @@ from pathlib import Path
 import pathspec
 import yaml
 
-from pyaitools.models import CheckDef, IgnoreSpec, ProjectConfig, SuiteCheckRef, SuiteDef
+from pyaitools.models import CheckDef, IgnoreSpec, ProjectConfig, SuiteCheckRef, SuiteDef, ToolDef
 
 
 @dataclass
@@ -116,7 +116,7 @@ def _keep_finding(finding, ignores: EffectiveIgnores) -> bool:
 
 
 def materialize_for_tool(
-    tool_id: str,
+    tool: ToolDef,
     ignores: EffectiveIgnores,
     *,
     project_root: Path,
@@ -126,7 +126,7 @@ def materialize_for_tool(
     from pyaitools.ignore_materialize import materialize_for_tool as _materialize
 
     return _materialize(
-        tool_id,
+        tool,
         ignores,
         project_root=project_root,
         check_id=check_id,

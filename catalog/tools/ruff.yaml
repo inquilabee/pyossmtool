@@ -6,3 +6,17 @@ install:
   package: "ruff>=0.15.0"
 binary: ruff
 documentation_url: https://docs.astral.sh/ruff/
+config:
+  flag: --config
+  bundled: ruff.toml
+  repo_files:
+    - ruff.toml
+  pyproject: [tool, ruff]
+ignore:
+  kind: config_overlay
+  format: toml
+  file: ruff.toml
+  flag: --config
+  key: extend-exclude
+  extend_from: base_or_pyproject
+  extend_key: extend

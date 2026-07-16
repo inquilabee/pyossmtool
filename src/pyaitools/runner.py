@@ -18,7 +18,6 @@ from pyaitools.ignore import (
     materialize_for_tool,
     resolve_effective_ignores,
 )
-from pyaitools.runner_script import build_script_argv
 from pyaitools.models import (
     CheckDef,
     CheckResult,
@@ -36,6 +35,13 @@ from pyaitools.parsers import parse_output
 from pyaitools.registry import Registry
 from pyaitools.reporter import Reporter
 from pyaitools.resolver import BinaryResolver
+from pyaitools.runner_script import build_script_argv
+from pyaitools.target_expand import (
+    argv_targets_for_check,
+    build_tool_argv,
+    coverage_target,
+    resolve_suite_target,
+)
 
 
 @dataclass
@@ -48,7 +54,10 @@ class _CheckLaunch:
 
 class Runner:
     def __init__(
-        self, registry: Registry, project_root: Path | None = None, verbose: bool = False
+        self,
+        registry: Registry,
+        project_root: Path | None = None,
+        verbose: bool = False,
     ) -> None:
         self.registry = registry
         self.project_root = (project_root or Path.cwd()).resolve()
@@ -88,9 +97,15 @@ class Runner:
     ) -> list[CheckResult]:
         results: list[CheckResult] = []
         for check_ref in check_refs:
+            target = self._resolve_target(check_ref, suite, project_config)
+            argv_targets = self._argv_targets(check_ref.id, target)
+            if argv_targets is None:
+                results.append(CheckResult(check_id=check_ref.id, passed=True))
+                continue
             result = self.run_check(
                 check_ref.id,
-                target=self._resolve_target(check_ref, suite, project_config),
+                target=target,
+                argv_targets=argv_targets,
                 suite_id=suite_id,
                 env_mode=env_mode,
                 project_config=project_config,
@@ -112,6 +127,7 @@ class Runner:
         project_config: ProjectConfig | None = None,
         suite: SuiteDef | None = None,
         check_ref: SuiteCheckRef | None = None,
+        argv_targets: list[str] | None = None,
     ) -> CheckResult:
         check = self.registry.get_check(check_id)
         tool = self.registry.get_tool(check.tool)
@@ -120,6 +136,10 @@ class Runner:
         suite, check_ref = self._resolve_suite_context(
             check_id, suite_id, suite, check_ref, project_config
         )
+        if argv_targets is None:
+            argv_targets = self._argv_targets(check_id, target)
+            if argv_targets is None:
+                return CheckResult(check_id=check_id, passed=True)
         effective_ignores = resolve_effective_ignores(
             self.project_root,
             suite=suite,
@@ -132,6 +152,7 @@ class Runner:
             check,
             check_id,
             target,
+            argv_targets,
             tool,
             env_mode,
             project_config,
@@ -172,6 +193,7 @@ class Runner:
         check: CheckDef,
         check_id: str,
         target: str,
+        argv_targets: list[str],
         tool: ToolDef,
         env_mode: EnvMode,
         project_config: ProjectConfig | None,
@@ -185,6 +207,7 @@ class Runner:
                 check,
                 check_id,
                 target,
+                argv_targets,
                 tool,
                 env_mode,
                 project_config,
@@ -239,6 +262,7 @@ class Runner:
         check: CheckDef,
         check_id: str,
         target: str,
+        argv_targets: list[str],
         tool: ToolDef,
         env_mode: EnvMode,
         project_config: ProjectConfig | None,
@@ -268,7 +292,7 @@ class Runner:
         argv, env = self._build_native_argv(
             check,
             check_id,
-            target,
+            argv_targets,
             tool,
             env_mode,
             project_config,
@@ -280,7 +304,7 @@ class Runner:
         self,
         check: CheckDef,
         check_id: str,
-        target: str,
+        argv_targets: list[str],
         tool: ToolDef,
         env_mode: EnvMode,
         project_config: ProjectConfig | None,
@@ -288,29 +312,30 @@ class Runner:
         effective_ignores: EffectiveIgnores,
     ) -> tuple[list[str], dict[str, str]]:
         binary = self.resolver.resolve(tool, env_mode)
-        base_config_path = self.config_resolver.resolve_config_path(tool.id, project_config)
+        base_config_path = self.config_resolver.resolve_config_path(tool, project_config)
         ignore_material = materialize_for_tool(
-            tool.id,
+            tool,
             effective_ignores,
             project_root=self.project_root,
             check_id=check_id,
             base_config_path=base_config_path,
         )
         config_argv, config_value = self._native_config_argv(
-            tool.id,
+            tool,
             project_config,
             ignore_material,
             base_config_path,
         )
         ignore_argv = self._native_ignore_argv(ignore_material)
-        cov_target = self._resolve_cov_target(check, project_config)
-        argv = self._build_tool_argv(
+        cov_target = coverage_target(check)
+        argv = build_tool_argv(
             binary=str(binary),
             tool_id=tool.id,
             config_argv=config_argv,
             ignore_argv=ignore_argv,
             check_argv=check.argv,
-            format_values={"target": target, "cov": cov_target, "config": config_value},
+            argv_targets=argv_targets,
+            format_values={"cov": cov_target, "config": config_value},
             post_subcommand=ignore_material.post_subcommand,
         )
         env = self.resolver.prepend_managed_path()
@@ -319,14 +344,14 @@ class Runner:
 
     def _native_config_argv(
         self,
-        tool_id: str,
+        tool: ToolDef,
         project_config: ProjectConfig | None,
         ignore_material,
         base_config_path: Path | None,
     ) -> tuple[list[str], str]:
         if ignore_material.config_path:
             return ignore_material.argv, str(ignore_material.config_path)
-        config_argv = self.config_resolver.extra_argv(tool_id, project_config)
+        config_argv = self.config_resolver.extra_argv(tool, project_config)
         config_value = str(base_config_path) if base_config_path else ""
         return config_argv, config_value
 
@@ -433,73 +458,11 @@ class Runner:
         suite: SuiteDef,
         project_config: ProjectConfig | None,
     ) -> str:
-        if check_ref.target:
-            return check_ref.target
-        check = self.registry.get_check(check_ref.id)
-        return self._target_for_key(check.target_key, suite, project_config)
+        return resolve_suite_target(check_ref, suite, project_config)
 
-    def _target_for_key(
-        self,
-        target_key: str,
-        suite: SuiteDef,
-        project_config: ProjectConfig | None,
-    ) -> str:
-        project_targets = project_config.targets if project_config else None
-        return _lookup_target(target_key, project_targets, suite.targets, ".")
-
-    def _resolve_cov_target(
-        self,
-        check,
-        project_config: ProjectConfig | None,
-    ) -> str:
-        if check.policy and check.policy.coverage_source:
-            return check.policy.coverage_source
-        project_targets = project_config.targets if project_config else None
-        return _lookup_target("coverage", project_targets, None, "src/")
-
-    def _build_tool_argv(
-        self,
-        *,
-        binary: str,
-        tool_id: str,
-        config_argv: list[str],
-        ignore_argv: list[str],
-        check_argv: list[str],
-        format_values: dict[str, str],
-        post_subcommand: bool = False,
-    ) -> list[str]:
-        formatted = [part.format(**format_values) for part in check_argv]
-        return _compose_tool_argv(
-            binary, tool_id, config_argv, ignore_argv, formatted, post_subcommand
-        )
-
-
-def _compose_tool_argv(
-    binary: str,
-    tool_id: str,
-    config_argv: list[str],
-    ignore_argv: list[str],
-    formatted: list[str],
-    post_subcommand: bool,
-) -> list[str]:
-    if post_subcommand and formatted:
-        return [binary, formatted[0], *config_argv, *ignore_argv, *formatted[1:]]
-    if tool_id == "pytest" and ignore_argv:
-        return [binary, *ignore_argv, *formatted]
-    return [binary, *config_argv, *ignore_argv, *formatted]
-
-
-def _lookup_target(
-    key: str,
-    primary: dict[str, str] | None,
-    secondary: dict[str, str] | None,
-    default: str,
-) -> str:
-    if primary and key in primary:
-        return primary[key]
-    if secondary and key in secondary:
-        return secondary[key]
-    return default
+    def _argv_targets(self, check_id: str, target: str) -> list[str] | None:
+        check = self.registry.get_check(check_id)
+        return argv_targets_for_check(project_root=self.project_root, check=check, target=target)
 
 
 def _exit_code_finding(returncode: int, stderr: str, stdout: str) -> Finding:

@@ -2,7 +2,6 @@ id: ty.check
 tool: ty
 name: ty Type Check
 description: Static type checking with concise diagnostics.
-target_key: python
 argv:
   - check
   - "{target}"

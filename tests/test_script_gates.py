@@ -3,12 +3,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+# Ensure registration
+import pyaitools.parsers  # noqa: F401
 from pyaitools.models import Severity
 from pyaitools.parsers.base import REGISTRY
 from pyaitools.registry import Registry
-
-# Ensure registration
-import pyaitools.parsers  # noqa: F401
 
 
 def test_registry_loads_project_script_gate(tmp_path: Path) -> None:
@@ -22,7 +21,6 @@ name: Example
 description: test gate
 script: .pyaitools/gates/example.sh
 parser: gate_json
-target_key: repo
 """.strip()
         + "\n",
         encoding="utf-8",

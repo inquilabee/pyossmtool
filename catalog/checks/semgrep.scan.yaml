@@ -2,7 +2,6 @@ id: semgrep.scan
 tool: semgrep
 name: Semgrep Scan
 description: Static analysis for security and architecture patterns.
-target_key: python
 argv:
   - scan
   - --config

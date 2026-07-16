@@ -6,3 +6,11 @@ install:
   package: markdownlint-cli
 binary: markdownlint
 documentation_url: https://github.com/DavidAnson/markdownlint
+config:
+  flag: -c
+  bundled: markdownlint.json
+  pass_flag: false
+  repo_files:
+    - .markdownlint.json
+    - .markdownlint.yaml
+    - .markdownlint.yml

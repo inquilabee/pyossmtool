@@ -6,3 +6,9 @@ install:
   package: jscpd
 binary: jscpd
 documentation_url: https://docs.jscpd.io/
+ignore:
+  kind: config_overlay
+  format: json
+  file: jscpd.json
+  flag: --config
+  key: ignore

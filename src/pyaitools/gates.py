@@ -63,15 +63,18 @@ def render_gate_catalog(name: str, description: str) -> str:
     script = gate_script_path(name)
     report = default_report_path(check_id)
     title = name.replace("-", " ").title()
+    slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
     return f"""id: {check_id}
 tool: script
 name: {title}
 description: {description}
 script: {script}
-target_key: repo
 parser: gate_json
 output_file: {report}
 argv: []
+config:
+  bundled: gates/{slug}.yaml
+  project_file: .pyaitools/configs/gates/{check_id}.yaml
 success:
   exit_codes: [0]
 remediation:
