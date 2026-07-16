@@ -25,34 +25,50 @@ def gate_config_stem(check_id: str) -> str:
     return check_id.removeprefix("gate.")
 
 
+_LEGACY_GATE_PATHS: dict[str, str] = {
+    "gate.module-size": ".tools/module-size-config.yaml",
+    "gate.module-private-vars": ".tools/module-private-vars-config.yaml",
+    "gate.folder-breadth": ".tools/folder-breadth-config.env",
+    "gate.acronym-allowlist": ".tools/acronym-allowlist-config.yaml",
+}
+
+
 def resolve_gate_config_path(
     check_id: str,
     project_root: Path,
     project_config: ProjectConfig | None,
 ) -> Path:
-    spec = project_config.configs if project_config else None
-    if spec and spec.mode == ConfigMode.PATHS:
-        override = spec.paths.get(check_id)
-        if override:
-            return (project_root / override).resolve()
+    override = _paths_mode_gate_override(check_id, project_root, project_config)
+    if override is not None:
+        return override
 
     project_path = project_root / ".pyaitools" / "configs" / "gates" / f"{check_id}.yaml"
     if project_path.exists():
         return project_path.resolve()
 
-    # Reslab-style legacy paths
-    legacy_names = {
-        "gate.module-size": project_root / ".tools" / "module-size-config.yaml",
-        "gate.module-private-vars": project_root / ".tools" / "module-private-vars-config.yaml",
-        "gate.folder-breadth": project_root / ".tools" / "folder-breadth-config.env",
-        "gate.acronym-allowlist": project_root / ".tools" / "acronym-allowlist-config.yaml",
-    }
-    legacy = legacy_names.get(check_id)
-    if legacy and legacy.exists():
-        return legacy.resolve()
+    legacy = _legacy_gate_config(project_root, check_id)
+    if legacy is not None:
+        return legacy
 
-    bundled = BUNDLED_GATES_CONFIG / f"{gate_config_stem(check_id)}.yaml"
-    return bundled.resolve()
+    return (BUNDLED_GATES_CONFIG / f"{gate_config_stem(check_id)}.yaml").resolve()
+
+
+def _paths_mode_gate_override(
+    check_id: str, project_root: Path, project_config: ProjectConfig | None
+) -> Path | None:
+    spec = project_config.configs if project_config else None
+    if not spec or spec.mode != ConfigMode.PATHS:
+        return None
+    override = spec.paths.get(check_id)
+    return (project_root / override).resolve() if override else None
+
+
+def _legacy_gate_config(project_root: Path, check_id: str) -> Path | None:
+    rel = _LEGACY_GATE_PATHS.get(check_id)
+    if not rel:
+        return None
+    path = project_root / rel
+    return path.resolve() if path.exists() else None
 
 
 def load_gate_config(
@@ -61,82 +77,109 @@ def load_gate_config(
     project_config: ProjectConfig | None,
 ) -> tuple[Path, dict[str, Any]]:
     path = resolve_gate_config_path(check_id, project_root, project_config)
-    if not path.exists():
-        bundled = BUNDLED_GATES_CONFIG / f"{gate_config_stem(check_id)}.yaml"
-        if bundled.exists():
-            path = bundled.resolve()
-            data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-        else:
-            return path, {}
-    elif path.suffix == ".env":
-        return path, _load_env_file(path)
-    else:
-        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-
+    data = _read_gate_config_data(path, check_id)
+    if not data:
+        return path, {}
     if not isinstance(data, dict):
         msg = f"Gate config must be a mapping: {path}"
         raise ValueError(msg)
+    config = dict(data)
+    _resolve_allowlist_path(check_id, project_root, config)
+    return path, config
 
-    data = dict(data)
-    _resolve_allowlist_path(check_id, project_root, data)
-    return path, data
+
+def _read_gate_config_data(path: Path, check_id: str) -> dict[str, Any] | list | None:
+    if not path.exists():
+        bundled = BUNDLED_GATES_CONFIG / f"{gate_config_stem(check_id)}.yaml"
+        if not bundled.exists():
+            return None
+        path = bundled.resolve()
+    if path.suffix == ".env":
+        return _load_env_file(path)
+    return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
 
 
 def _resolve_allowlist_path(check_id: str, project_root: Path, config: dict[str, Any]) -> None:
     raw = config.get("allowlist_file")
     if not raw:
         return
-    path = Path(str(raw))
-    if not path.is_absolute():
-        path = project_root / path
+    path = _allowlist_path(project_root, raw)
     if path.exists():
         config["allowlist_file"] = str(path.resolve())
         return
+    bundled = _bundled_allowlist(check_id)
+    config["allowlist_file"] = str(bundled.resolve() if bundled else path.resolve())
+
+
+def _allowlist_path(project_root: Path, raw: Any) -> Path:
+    path = Path(str(raw))
+    if path.is_absolute():
+        return path
+    return project_root / path
+
+
+def _bundled_allowlist(check_id: str) -> Path | None:
     bundled_name = GATE_ALLOWLIST_FILES.get(check_id)
-    if bundled_name:
-        bundled = BUNDLED_ALLOWLISTS / bundled_name
-        if bundled.exists():
-            config["allowlist_file"] = str(bundled.resolve())
-            return
-    config["allowlist_file"] = str(path.resolve())
+    if not bundled_name:
+        return None
+    bundled = BUNDLED_ALLOWLISTS / bundled_name
+    return bundled if bundled.exists() else None
 
 
 def gate_env_from_config(config: dict[str, Any], project_root: Path) -> dict[str, str]:
     env: dict[str, str] = {}
     for key, value in config.items():
-        env_key = f"GATE_{key.upper()}"
-        if isinstance(value, list):
-            env[env_key] = " ".join(str(item) for item in value)
-        elif isinstance(value, bool):
-            env[env_key] = "1" if value else "0"
-        elif value is not None:
-            env[env_key] = str(value)
-    if "allowlist_file" in config and config["allowlist_file"]:
-        allowlist = Path(str(config["allowlist_file"]))
-        if not allowlist.is_absolute():
-            allowlist = project_root / allowlist
-        env["GATE_ALLOWLIST_FILE"] = str(allowlist.resolve())
+        if value is None:
+            continue
+        env[f"GATE_{key.upper()}"] = _gate_env_value(value)
+    allowlist = config.get("allowlist_file")
+    if allowlist:
+        env["GATE_ALLOWLIST_FILE"] = str(_allowlist_env_path(allowlist, project_root))
     return env
+
+
+def _allowlist_env_path(allowlist: Any, project_root: Path) -> Path:
+    path = Path(str(allowlist))
+    if not path.is_absolute():
+        path = project_root / path
+    return path.resolve()
+
+
+def _gate_env_value(value: Any) -> str:
+    if isinstance(value, list):
+        return " ".join(str(item) for item in value)
+    if isinstance(value, bool):
+        return "1" if value else "0"
+    return str(value)
 
 
 def _load_env_file(path: Path) -> dict[str, Any]:
     values: dict[str, Any] = {}
     for line in path.read_text(encoding="utf-8").splitlines():
-        stripped = line.split("#", 1)[0].strip()
-        if not stripped or "=" not in stripped:
+        key, value = _parse_env_line(line)
+        if key is None or value is None:
             continue
-        key, value = stripped.split("=", 1)
-        normalized = key.strip().lower()
-        if normalized == "folder_breadth_max":
-            values["max_allowed"] = int(value.strip())
-        elif normalized == "folder_breadth_scan_roots":
-            values["scan_roots"] = [
-                part.strip() for part in value.strip().split(",") if part.strip()
-            ]
-        elif normalized == "folder_breadth_extensions":
-            values["extensions"] = [
-                part.strip() for part in value.strip().split(",") if part.strip()
-            ]
-        else:
-            values[normalized] = value.strip()
+        values.update(_map_env_key(key, value))
     return values
+
+
+def _parse_env_line(line: str) -> tuple[str | None, str | None]:
+    stripped = line.split("#", 1)[0].strip()
+    if not stripped or "=" not in stripped:
+        return None, None
+    key, value = stripped.split("=", 1)
+    return key.strip().lower(), value.strip()
+
+
+def _map_env_key(key: str, value: str) -> dict[str, Any]:
+    if key == "folder_breadth_max":
+        return {"max_allowed": int(value)}
+    if key == "folder_breadth_scan_roots":
+        return {"scan_roots": _split_csv(value)}
+    if key == "folder_breadth_extensions":
+        return {"extensions": _split_csv(value)}
+    return {key: value}
+
+
+def _split_csv(value: str) -> list[str]:
+    return [part.strip() for part in value.split(",") if part.strip()]

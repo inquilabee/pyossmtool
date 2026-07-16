@@ -13,7 +13,16 @@ from pyaitools.ignore import (
     merge_ignore_specs,
     resolve_effective_ignores,
 )
-from pyaitools.models import CheckDef, Finding, IgnoreSpec, Location, ProjectConfig, Severity, SuiteCheckRef, SuiteDef
+from pyaitools.models import (
+    CheckDef,
+    Finding,
+    IgnoreSpec,
+    Location,
+    ProjectConfig,
+    Severity,
+    SuiteCheckRef,
+    SuiteDef,
+)
 from pyaitools.registry import Registry
 
 

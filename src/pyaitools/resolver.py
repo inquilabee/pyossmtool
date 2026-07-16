@@ -43,50 +43,54 @@ class BinaryResolver:
         if not pyproject.exists() or tool.install.package is None:
             return False
         package_name = tool.install.package.split(">=")[0].split("==")[0].strip()
+        return package_name in self._project_dependency_text(pyproject)
+
+    def _project_dependency_text(self, pyproject: Path) -> str:
         text = pyproject.read_text(encoding="utf-8")
         try:
             data = tomllib.loads(text)
         except tomllib.TOMLDecodeError:
-            return package_name in text
-        dep_groups = data.get("dependency-groups", {})
-        project_deps = data.get("project", {}).get("dependencies", [])
-        all_deps = list(project_deps)
-        for group in dep_groups.values():
+            return text
+        deps = list(data.get("project", {}).get("dependencies", []))
+        for group in data.get("dependency-groups", {}).values():
             if isinstance(group, list):
-                all_deps.extend(group)
-        return any(package_name in dep for dep in all_deps)
+                deps.extend(group)
+        return " ".join(deps)
 
     def resolve(self, tool: ToolDef, mode: EnvMode) -> Path:
         resolved_mode = self.resolve_env_mode(mode)
-        if resolved_mode == EnvMode.PROJECT:
-            binary = self._resolve_from_path(tool.binary)
-            if binary is not None:
-                return binary
-            if tool.install.method.value == "npm":
-                binary = self._resolve_npm(tool.binary)
-                if binary is not None:
-                    return binary
-        if resolved_mode == EnvMode.AUTO and self._tool_in_project_deps(tool):
-            binary = self._resolve_from_path(tool.binary)
-            if binary is not None:
-                return binary
-
-        binary = self._resolve_managed(tool)
-        if binary is not None:
-            return binary
-
-        found = shutil.which(tool.binary)
-        if found:
-            return Path(found)
-
-        if tool.install.method.value == "system":
-            binary = self._resolve_system(tool.binary)
-            if binary is not None:
-                return binary
-
+        for candidate in self._resolution_candidates(tool, resolved_mode):
+            if candidate is not None:
+                return candidate
         raise FileNotFoundError(
             f"Could not resolve binary '{tool.binary}' for tool '{tool.id}' (mode={resolved_mode.value})"
         )
+
+    def _resolution_candidates(self, tool: ToolDef, mode: EnvMode):
+        yield self._resolve_for_mode(tool, mode)
+        yield self._resolve_managed(tool)
+        yield self._resolve_which(tool.binary)
+        if tool.install.method.value == "system":
+            yield self._resolve_system(tool.binary)
+
+    def _resolve_for_mode(self, tool: ToolDef, mode: EnvMode) -> Path | None:
+        if mode == EnvMode.PROJECT:
+            return self._resolve_project_paths(tool)
+        if mode == EnvMode.AUTO and self._tool_in_project_deps(tool):
+            return self._resolve_from_path(tool.binary)
+        return None
+
+    def _resolve_project_paths(self, tool: ToolDef) -> Path | None:
+        binary = self._resolve_from_path(tool.binary)
+        if binary is not None:
+            return binary
+        if tool.install.method.value == "npm":
+            return self._resolve_npm(tool.binary)
+        return None
+
+    def _resolve_which(self, binary_name: str) -> Path | None:
+        found = shutil.which(binary_name)
+        return Path(found) if found else None
 
     def _resolve_from_path(self, binary_name: str) -> Path | None:
         for bin_dir in self._venv_bin_dirs():

@@ -116,22 +116,7 @@ def run(
     runner = Runner(registry, project_root, verbose=verbose)
 
     if check:
-        if not target:
-            typer.echo("SETUP --target is required with --check", err=True)
-            raise typer.Exit(code=2)
-        result = runner.run_check(
-            check,
-            target=target,
-            suite_id=suite or (project_config.suite if project_config else None),
-            project_config=project_config,
-        )
-        if result.error:
-            typer.echo(f"SETUP {result.error}", err=True)
-            raise typer.Exit(code=2)
-        if result.passed:
-            raise typer.Exit(code=0)
-        typer.echo(f"FAIL {result.check_id} -> {result.report_path}", err=True)
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=_run_single_check(runner, check, target, suite, project_config))
 
     suite_id = suite or (project_config.suite if project_config else None)
     if not suite_id:
@@ -139,16 +124,54 @@ def run(
         raise typer.Exit(code=2)
 
     suite_result = runner.run_suite(suite_id, project_config=project_config, fail_fast=fail_fast)
-    if suite_result.passed:
-        raise typer.Exit(code=0)
+    raise typer.Exit(code=_emit_suite_result(suite_result))
 
+
+def _run_single_check(
+    runner: Runner,
+    check: str,
+    target: str | None,
+    suite: str | None,
+    project_config,
+) -> int:
+    if not target:
+        typer.echo("SETUP --target is required with --check", err=True)
+        return 2
+    result = runner.run_check(
+        check,
+        target=target,
+        suite_id=suite or (project_config.suite if project_config else None),
+        project_config=project_config,
+    )
+    return _exit_for_check_result(result)
+
+
+def _exit_for_check_result(result) -> int:
+    if result.error:
+        typer.echo(f"SETUP {result.error}", err=True)
+        return 2
+    if result.passed:
+        return 0
+    typer.echo(f"FAIL {result.check_id} -> {result.report_path}", err=True)
+    return 1
+
+
+def _emit_suite_result(suite_result) -> int:
+    if suite_result.passed:
+        return 0
     for result in suite_result.results:
-        if not result.passed:
-            if result.error:
-                typer.echo(f"SETUP {result.check_id}: {result.error}", err=True)
-            elif result.report_path:
-                typer.echo(f"FAIL {result.check_id} -> {result.report_path}", err=True)
-    raise typer.Exit(code=1)
+        _emit_failed_check(result)
+    return 1
+
+
+def _emit_failed_check(result) -> None:
+    if result.passed:
+        return
+    if result.error:
+        typer.echo(f"SETUP {result.check_id}: {result.error}", err=True)
+        return
+    if result.report_path:
+        typer.echo(f"FAIL {result.check_id} -> {result.report_path}", err=True)
 
 
 def main() -> None:

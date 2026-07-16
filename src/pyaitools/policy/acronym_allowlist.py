@@ -266,31 +266,43 @@ def run_gate(
     report_path: Path | None,
 ) -> int:
     scan_roots, allowlist_path = settings_from_config(config)
-    if allowlist_path is None:
-        msg = "acronym allowlist_file is required in gate config"
-        raise ValueError(msg)
-    if not allowlist_path.is_absolute():
-        allowlist_path = root / allowlist_path
-
+    allowlist_path = _require_allowlist_path(root, allowlist_path)
     violations = scan_paths(
         repo_root=root,
         allowlist_path=allowlist_path,
         scan_roots=scan_roots,
         ignores=ignores_from_env(root),
     )
-    if report_path:
-        report_path.parent.mkdir(parents=True, exist_ok=True)
-        payload = {"findings": findings_from_violations(violations)}
-        report_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    _write_acronym_report(violations, report_path)
+    return _acronym_exit(violations)
 
-    if violations:
-        for item in violations:
-            print(
-                f"FAIL acronym: {item.path}:{item.line}: undocumented acronym {item.token!r}",
-                file=sys.stderr,
-            )
-        return 1
-    return 0
+
+def _require_allowlist_path(root: Path, allowlist_path: Path | None) -> Path:
+    if allowlist_path is None:
+        msg = "acronym allowlist_file is required in gate config"
+        raise ValueError(msg)
+    if not allowlist_path.is_absolute():
+        return root / allowlist_path
+    return allowlist_path
+
+
+def _write_acronym_report(violations, report_path: Path | None) -> None:
+    if not report_path:
+        return
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {"findings": findings_from_violations(violations)}
+    report_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+
+def _acronym_exit(violations) -> int:
+    if not violations:
+        return 0
+    for item in violations:
+        print(
+            f"FAIL acronym: {item.path}:{item.line}: undocumented acronym {item.token!r}",
+            file=sys.stderr,
+        )
+    return 1
 
 
 def main(argv: list[str] | None = None) -> int:

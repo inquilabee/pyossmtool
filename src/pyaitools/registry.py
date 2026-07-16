@@ -35,21 +35,16 @@ class Registry:
         return items
 
     def _load(self) -> None:
-        for tool_id, data in self._load_yaml_dir(self.catalog_root / "tools").items():
-            self.tools[tool_id] = ToolDef.model_validate(data)
-        for check_id, data in self._load_yaml_dir(self.catalog_root / "checks").items():
-            self.checks[check_id] = CheckDef.model_validate(data)
-        for suite_id, data in self._load_yaml_dir(self.suites_root).items():
-            self.suites[suite_id] = SuiteDef.model_validate(data)
-
+        self._load_catalog_tree(self.catalog_root, self.suites_root)
         project_catalog = self.project_root / PROJECT_CATALOG
-        for tool_id, data in self._load_yaml_dir(project_catalog / "tools").items():
-            self.tools[tool_id] = ToolDef.model_validate(data)
-        for check_id, data in self._load_yaml_dir(project_catalog / "checks").items():
-            self.checks[check_id] = CheckDef.model_validate(data)
+        self._load_catalog_tree(project_catalog, self.project_root / PROJECT_SUITES)
 
-        project_suites = self.project_root / PROJECT_SUITES
-        for suite_id, data in self._load_yaml_dir(project_suites).items():
+    def _load_catalog_tree(self, catalog_root: Path, suites_root: Path) -> None:
+        for tool_id, data in self._load_yaml_dir(catalog_root / "tools").items():
+            self.tools[tool_id] = ToolDef.model_validate(data)
+        for check_id, data in self._load_yaml_dir(catalog_root / "checks").items():
+            self.checks[check_id] = CheckDef.model_validate(data)
+        for suite_id, data in self._load_yaml_dir(suites_root).items():
             self.suites[suite_id] = SuiteDef.model_validate(data)
 
     def get_tool(self, tool_id: str) -> ToolDef:

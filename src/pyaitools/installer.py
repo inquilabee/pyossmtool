@@ -32,36 +32,41 @@ class Installer:
             self.install_tool(tool)
 
     def install_tool(self, tool: ToolDef) -> None:
-        if tool.install.method == InstallMethod.SKIP:
-            return
+        method = tool.install.method
+        handlers = {
+            InstallMethod.SKIP: lambda _tool: None,
+            InstallMethod.SYSTEM: self._warn_missing_system_tool,
+            InstallMethod.PIP: self._install_pip_tool,
+            InstallMethod.NPM: self._install_npm_tool,
+        }
+        handler = handlers.get(method)
+        if handler is None:
+            raise RuntimeError(f"Unsupported install method: {method}")
+        handler(tool)
 
-        if tool.install.method == InstallMethod.SYSTEM:
-            if self.resolver._resolve_system(tool.binary) is None:
-                import sys
-
-                print(
-                    f"WARN: system tool '{tool.binary}' not found; install manually to enable related checks",
-                    file=sys.stderr,
-                )
-            return
-
-        if tool.install.method == InstallMethod.PIP:
-            self._ensure_managed_venv()
-            self._install_pip(tool)
-            if not self._binary_available_in_managed(tool):
-                raise RuntimeError(f"Failed to install tool '{tool.id}' ({tool.binary})")
-            return
-
+    def _install_npm_tool(self, tool: ToolDef) -> None:
         if self._binary_available(tool):
             return
+        self._install_npm(tool)
+        self._require_binary(tool)
 
-        if tool.install.method == InstallMethod.NPM:
-            self._install_npm(tool)
-        else:
-            raise RuntimeError(f"Unsupported install method: {tool.install.method}")
+    def _warn_missing_system_tool(self, tool: ToolDef) -> None:
+        if self.resolver._resolve_system(tool.binary) is not None:
+            return
+        print(
+            f"WARN: system tool '{tool.binary}' not found; install manually to enable related checks",
+            file=sys.stderr,
+        )
 
-        if not self._binary_available(tool):
-            raise RuntimeError(f"Failed to install tool '{tool.id}' ({tool.binary})")
+    def _install_pip_tool(self, tool: ToolDef) -> None:
+        self._ensure_managed_venv()
+        self._install_pip(tool)
+        self._require_binary(tool)
+
+    def _require_binary(self, tool: ToolDef) -> None:
+        if self._binary_available(tool):
+            return
+        raise RuntimeError(f"Failed to install tool '{tool.id}' ({tool.binary})")
 
     def _binary_available(self, tool: ToolDef) -> bool:
         try:
@@ -69,9 +74,6 @@ class Installer:
             return True
         except FileNotFoundError:
             return False
-
-    def _binary_available_in_managed(self, tool: ToolDef) -> bool:
-        return self._binary_available(tool)
 
     def _managed_python(self) -> str:
         if sys.version_info < (3, 14):

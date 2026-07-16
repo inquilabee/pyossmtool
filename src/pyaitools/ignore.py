@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -19,6 +18,7 @@ class ToolIgnoreMaterial:
     argv: list[str] = field(default_factory=list)
     config_path: Path | None = None
     skip_file: Path | None = None
+    post_subcommand: bool = False
 
 
 @dataclass
@@ -52,15 +52,17 @@ def merge_ignore_specs(*specs: IgnoreSpec | None) -> IgnoreSpec:
     for spec in specs:
         if spec is None:
             continue
-        for item in spec.ignore_profile:
-            if item not in seen_profiles:
-                seen_profiles.add(item)
-                profiles.append(item)
-        for item in spec.ignore_paths:
-            if item not in seen_paths:
-                seen_paths.add(item)
-                paths.append(item)
+        _extend_unique(profiles, seen_profiles, spec.ignore_profile)
+        _extend_unique(paths, seen_paths, spec.ignore_paths)
     return IgnoreSpec(ignore_profile=profiles, ignore_paths=paths)
+
+
+def _extend_unique(target: list[str], seen: set[str], values: list[str]) -> None:
+    for item in values:
+        if item in seen:
+            continue
+        seen.add(item)
+        target.append(item)
 
 
 def resolve_effective_ignores(
@@ -74,47 +76,43 @@ def resolve_effective_ignores(
 ) -> EffectiveIgnores:
     merged = merge_ignore_specs(
         IgnoreSpec(ignore_paths=bundled_patterns or []),
-        IgnoreSpec(
-            ignore_profile=suite.ignore_profile if suite else [],
-            ignore_paths=suite.ignore_paths if suite else [],
-        ),
-        IgnoreSpec(
-            ignore_profile=project_config.ignore_profile if project_config else [],
-            ignore_paths=project_config.ignore_paths if project_config else [],
-        ),
-        IgnoreSpec(
-            ignore_profile=check.ignore_profile if check else [],
-            ignore_paths=check.ignore_paths if check else [],
-        ),
-        IgnoreSpec(
-            ignore_profile=check_ref.ignore_profile if check_ref else [],
-            ignore_paths=check_ref.ignore_paths if check_ref else [],
-        ),
+        _ignore_spec_from(suite),
+        _ignore_spec_from(project_config),
+        _ignore_spec_from(check),
+        _ignore_spec_from(check_ref),
     )
+    return _effective_from_merged(merged, project_root)
 
-    profile_files: list[str] = []
-    for rel in merged.ignore_profile:
-        path = (project_root / rel).resolve()
-        if path.is_file():
-            profile_files.append(str(path))
 
+def _ignore_spec_from(source) -> IgnoreSpec:
+    if source is None:
+        return IgnoreSpec()
+    return IgnoreSpec(ignore_profile=source.ignore_profile, ignore_paths=source.ignore_paths)
+
+
+def _effective_from_merged(merged: IgnoreSpec, project_root: Path) -> EffectiveIgnores:
+    profile_files = [
+        str((project_root / rel).resolve())
+        for rel in merged.ignore_profile
+        if (project_root / rel).resolve().is_file()
+    ]
     path_patterns = [_normalize_pattern(pattern) for pattern in merged.ignore_paths]
     return EffectiveIgnores(profile_files=profile_files, path_patterns=path_patterns)
 
 
 def filter_findings(findings: list, ignores: EffectiveIgnores) -> list:
+
+    return [finding for finding in findings if _keep_finding(finding, ignores)]
+
+
+def _keep_finding(finding, ignores: EffectiveIgnores) -> bool:
     from pyaitools.models import Finding
 
-    filtered: list[Finding] = []
-    for finding in findings:
-        if not isinstance(finding, Finding):
-            filtered.append(finding)
-            continue
-        if finding.location and finding.location.file:
-            if ignores.is_ignored(finding.location.file):
-                continue
-        filtered.append(finding)
-    return filtered
+    if not isinstance(finding, Finding):
+        return True
+    if not finding.location or not finding.location.file:
+        return True
+    return not ignores.is_ignored(finding.location.file)
 
 
 def materialize_for_tool(
@@ -125,90 +123,20 @@ def materialize_for_tool(
     check_id: str,
     base_config_path: Path | None = None,
 ) -> ToolIgnoreMaterial:
-    patterns = _all_patterns(ignores)
-    if not patterns:
-        return ToolIgnoreMaterial()
+    from pyaitools.ignore_materialize import materialize_for_tool as _materialize
 
-    cache_dir = project_root / ".pyaitools" / "cache" / "ignores" / check_id
-    cache_dir.mkdir(parents=True, exist_ok=True)
-
-    if tool_id == "ruff":
-        config_path = cache_dir / "ruff.toml"
-        lines = ["extend-exclude = ["]
-        lines.extend(f'  "{pattern}",' for pattern in patterns)
-        lines.append("]")
-        config_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-        return ToolIgnoreMaterial(argv=["--config", str(config_path)], config_path=config_path)
-
-    if tool_id == "ty":
-        config_path = cache_dir / "ty.toml"
-        lines = ["[tool.ty]", "exclude = ["]
-        lines.extend(f'  "{pattern}",' for pattern in patterns)
-        lines.append("]")
-        config_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-        return ToolIgnoreMaterial(argv=["--config", str(config_path)], config_path=config_path)
-
-    if tool_id in {"bandit"}:
-        argv: list[str] = []
-        for pattern in patterns:
-            argv.extend(["-x", pattern])
-        return ToolIgnoreMaterial(argv=argv)
-
-    if tool_id == "semgrep":
-        argv = []
-        for pattern in patterns:
-            argv.extend(["--exclude", pattern])
-        return ToolIgnoreMaterial(argv=argv)
-
-    if tool_id in {"deadcode", "vulture"}:
-        argv = []
-        for pattern in patterns:
-            argv.append(f"--exclude={pattern}")
-        return ToolIgnoreMaterial(argv=argv)
-
-    if tool_id == "pytest":
-        argv = []
-        for pattern in patterns:
-            argv.extend(["--ignore", pattern])
-        return ToolIgnoreMaterial(argv=argv)
-
-    if tool_id == "codespell":
-        skip_file = cache_dir / "codespell.skip"
-        skip_file.write_text("\n".join(patterns) + "\n", encoding="utf-8")
-        return ToolIgnoreMaterial(argv=["--skip", str(skip_file)], skip_file=skip_file)
-
-    if tool_id == "yamllint":
-        config_path = cache_dir / "yamllint.yaml"
-        overlay = _merge_yaml_config(
-            base_config_path,
-            {"ignore": _patterns_as_yaml_block(patterns)},
-        )
-        config_path.write_text(yaml.safe_dump(overlay, sort_keys=False), encoding="utf-8")
-        return ToolIgnoreMaterial(argv=["-c", str(config_path)], config_path=config_path)
-
-    if tool_id == "yamlfmt":
-        config_path = cache_dir / "yamlfmt.yaml"
-        overlay = _merge_yaml_config(
-            base_config_path,
-            {"exclude": patterns},
-        )
-        config_path.write_text(yaml.safe_dump(overlay, sort_keys=False), encoding="utf-8")
-        return ToolIgnoreMaterial(argv=["-conf", str(config_path)], config_path=config_path)
-
-    if tool_id == "jscpd":
-        config_path = cache_dir / "jscpd.json"
-        payload = {"ignore": patterns}
-        config_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-        return ToolIgnoreMaterial(argv=["--config", str(config_path)], config_path=config_path)
-
-    # Tools without native exclude flags rely on post-filtering.
-    return ToolIgnoreMaterial()
+    return _materialize(
+        tool_id,
+        ignores,
+        project_root=project_root,
+        check_id=check_id,
+        base_config_path=base_config_path,
+    )
 
 
 def ignore_env(ignores: EffectiveIgnores, project_root: Path) -> dict[str, str]:
     profiles = [
-        str((project_root / rel).resolve())
-        for rel in _profile_rel_paths(ignores, project_root)
+        str((project_root / rel).resolve()) for rel in _profile_rel_paths(ignores, project_root)
     ]
     env: dict[str, str] = {}
     if profiles:
@@ -245,15 +173,18 @@ def _all_patterns(ignores: EffectiveIgnores) -> list[str]:
 def _load_profile_patterns(path: Path) -> list[str]:
     if not path.is_file():
         return []
-    patterns: list[str] = []
-    for line in path.read_text(encoding="utf-8").splitlines():
-        stripped = line.strip()
-        if not stripped or stripped.startswith("#"):
-            continue
-        if stripped.startswith("!"):
-            continue
-        patterns.append(stripped)
-    return patterns
+    return [
+        pattern
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if (pattern := _profile_line_pattern(line)) is not None
+    ]
+
+
+def _profile_line_pattern(line: str) -> str | None:
+    stripped = line.strip()
+    if not stripped or stripped.startswith("#") or stripped.startswith("!"):
+        return None
+    return stripped
 
 
 def _normalize_pattern(pattern: str) -> str:
@@ -275,26 +206,37 @@ def _patterns_as_yaml_block(patterns: list[str]) -> str:
 
 
 def _merge_yaml_config(base_path: Path | None, overlay: dict) -> dict:
-    base: dict = {}
-    if base_path and base_path.exists():
-        loaded = yaml.safe_load(base_path.read_text(encoding="utf-8")) or {}
-        if isinstance(loaded, dict):
-            base = loaded
-
-    merged = dict(base)
+    merged = _load_yaml_dict(base_path)
     for key, value in overlay.items():
-        if key == "ignore" and "ignore" in merged:
-            existing = str(merged["ignore"]).strip().splitlines()
-            new_lines = str(value).strip().splitlines()
-            combined = list(dict.fromkeys([*existing, *new_lines]))
-            merged["ignore"] = _patterns_as_yaml_block(combined)
-        elif key == "exclude" and "exclude" in merged:
-            existing = list(merged["exclude"]) if isinstance(merged["exclude"], list) else []
-            new_items = value if isinstance(value, list) else [value]
-            merged["exclude"] = list(dict.fromkeys([*existing, *new_items]))
-        else:
-            merged[key] = value
+        merged[key] = _merge_yaml_value(merged, key, value)
     return merged
+
+
+def _load_yaml_dict(base_path: Path | None) -> dict:
+    if not base_path or not base_path.exists():
+        return {}
+    loaded = yaml.safe_load(base_path.read_text(encoding="utf-8")) or {}
+    return loaded if isinstance(loaded, dict) else {}
+
+
+def _merge_yaml_value(merged: dict, key: str, value) -> object:
+    if key == "ignore" and "ignore" in merged:
+        return _merge_ignore_block(merged["ignore"], value)
+    if key == "exclude" and "exclude" in merged:
+        return _merge_exclude_list(merged["exclude"], value)
+    return value
+
+
+def _merge_ignore_block(existing_value, value) -> str:
+    existing = str(existing_value).strip().splitlines()
+    new_lines = str(value).strip().splitlines()
+    return _patterns_as_yaml_block(list(dict.fromkeys([*existing, *new_lines])))
+
+
+def _merge_exclude_list(existing_value, value) -> list:
+    existing = list(existing_value) if isinstance(existing_value, list) else []
+    new_items = value if isinstance(value, list) else [value]
+    return list(dict.fromkeys([*existing, *new_items]))
 
 
 def bundled_tool_ignore_patterns(tool_id: str) -> list[str]:
@@ -308,22 +250,25 @@ def ignores_from_env(project_root: Path | None = None) -> EffectiveIgnores:
     """Build ignores from PYAITOOLS_IGNORE_* environment variables (script gates)."""
     import os
 
-    profile_files = [
-        item.strip()
-        for item in os.environ.get("PYAITOOLS_IGNORE_PROFILES", "").splitlines()
-        if item.strip()
-    ]
-    path_patterns = [
-        _normalize_pattern(item)
-        for item in os.environ.get("PYAITOOLS_IGNORE_PATHS", "").splitlines()
-        if item.strip()
-    ]
     root = (project_root or Path.cwd()).resolve()
-    resolved_profiles: list[str] = []
-    for profile in profile_files:
+    profile_files = _resolve_env_profiles(root, os.environ.get("PYAITOOLS_IGNORE_PROFILES", ""))
+    path_patterns = _env_path_patterns(os.environ.get("PYAITOOLS_IGNORE_PATHS", ""))
+    return EffectiveIgnores(profile_files=profile_files, path_patterns=path_patterns)
+
+
+def _env_path_patterns(text: str) -> list[str]:
+    return [_normalize_pattern(item) for item in text.splitlines() if item.strip()]
+
+
+def _resolve_env_profiles(root: Path, text: str) -> list[str]:
+    resolved: list[str] = []
+    for item in text.splitlines():
+        profile = item.strip()
+        if not profile:
+            continue
         path = Path(profile)
         if not path.is_absolute():
             path = root / path
         if path.is_file():
-            resolved_profiles.append(str(path.resolve()))
-    return EffectiveIgnores(profile_files=resolved_profiles, path_patterns=path_patterns)
+            resolved.append(str(path.resolve()))
+    return resolved

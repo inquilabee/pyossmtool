@@ -17,6 +17,16 @@ from pyaitools.models import (
 )
 
 
+_DEFAULT_COMMANDS: dict[str, str] = {
+    "ruff.lint": "{binary} check --fix {target}",
+    "ruff.format": "{binary} format {target}",
+    "shfmt.format": "{binary} -w {target}",
+    "mdformat.format": "{binary} {target}",
+    "yamlfmt.format": "{binary} {target}",
+    "ty.check": "{binary} check {target}",
+}
+
+
 class Reporter:
     def __init__(self, project_root: Path | None = None) -> None:
         self.project_root = (project_root or Path.cwd()).resolve()
@@ -84,18 +94,9 @@ class Reporter:
         return report_path
 
     def _default_commands(self, check: CheckDef, tool: ToolDef, target: str) -> list[str]:
-        if check.id == "ruff.lint":
-            return [f"{tool.binary} check --fix {target}"]
-        if check.id == "ruff.format":
-            return [f"{tool.binary} format {target}"]
-        if check.id == "shfmt.format":
-            return [f"{tool.binary} -w {target}"]
-        if check.id == "mdformat.format":
-            return [f"{tool.binary} {target}"]
-        if check.id == "yamlfmt.format":
-            return [f"{tool.binary} {target}"]
-        if check.id == "ty.check":
-            return [f"{tool.binary} check {target}"]
+        template = _DEFAULT_COMMANDS.get(check.id)
+        if template:
+            return [template.format(binary=tool.binary, target=target)]
         if check.tool == "script" and check.script:
             if check.script.startswith("bundled:"):
                 return [f"pyaitools run --check {check.id} --target {target}"]
