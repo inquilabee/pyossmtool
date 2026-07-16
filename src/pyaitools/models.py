@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -11,20 +11,20 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 SCHEMA_VERSION = "1.0"
 
 
-class InstallMethod(str, Enum):
+class InstallMethod(StrEnum):
     PIP = "pip"
     NPM = "npm"
     SYSTEM = "system"
     SKIP = "skip"
 
 
-class EnvMode(str, Enum):
+class EnvMode(StrEnum):
     MANAGED = "managed"
     PROJECT = "project"
     AUTO = "auto"
 
 
-class Severity(str, Enum):
+class Severity(StrEnum):
     ERROR = "error"
     WARNING = "warning"
     INFO = "info"
@@ -54,14 +54,14 @@ class ToolConfigSpec(BaseModel):
         return bool(self.flag)
 
 
-class IgnoreKind(str, Enum):
+class IgnoreKind(StrEnum):
     FLAG_PAIRS = "flag_pairs"
     PREFIX = "prefix"
     SKIP_FILE = "skip_file"
     CONFIG_OVERLAY = "config_overlay"
 
 
-class ExtendFrom(str, Enum):
+class ExtendFrom(StrEnum):
     NONE = "none"
     BASE_CONFIG = "base_config"
     BASE_OR_PYPROJECT = "base_or_pyproject"
@@ -107,7 +107,7 @@ class CheckPolicy(BaseModel):
     min_confidence: int | None = None
 
 
-class ConfigMode(str, Enum):
+class ConfigMode(StrEnum):
     AUTO = "auto"
     BUNDLED = "bundled"
     PATHS = "paths"
@@ -261,7 +261,7 @@ class SuiteResult(BaseModel):
 
 
 def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def summarize_findings(findings: list[Finding]) -> FailureSummary:

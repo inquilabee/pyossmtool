@@ -28,15 +28,11 @@ class ConfigResolver:
             return []
         return self._config_argv(tool, config_path)
 
-    def resolve_config_path(
-        self, tool: ToolDef, project_config: ProjectConfig | None
-    ) -> Path | None:
+    def resolve_config_path(self, tool: ToolDef, project_config: ProjectConfig | None) -> Path | None:
         path = self._selected_config_path(tool, project_config)
         return path.resolve() if path and path.exists() else None
 
-    def _selected_config_path(
-        self, tool: ToolDef, project_config: ProjectConfig | None
-    ) -> Path | None:
+    def _selected_config_path(self, tool: ToolDef, project_config: ProjectConfig | None) -> Path | None:
         spec = project_config.configs if project_config else ConfigSpec()
         if spec.mode == ConfigMode.PATHS:
             return self._paths_mode_config(tool.id, spec)

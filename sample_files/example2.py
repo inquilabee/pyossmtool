@@ -6,6 +6,7 @@ def process_data(data_list):
             processed.append(item * 2)
     return processed
 
+
 def filter_data(data_list, threshold):
     filtered = []
     for item in data_list:

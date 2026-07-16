@@ -74,12 +74,8 @@ class Runner:
     ) -> SuiteResult:
         suite = self.registry.get_suite(suite_id)
         env_mode = project_config.env if project_config else suite.env
-        check_refs = (
-            project_config.checks if project_config and project_config.checks else suite.checks
-        )
-        results = self._run_suite_checks(
-            suite_id, suite, check_refs, env_mode, project_config, fail_fast
-        )
+        check_refs = project_config.checks if project_config and project_config.checks else suite.checks
+        results = self._run_suite_checks(suite_id, suite, check_refs, env_mode, project_config, fail_fast)
         return SuiteResult(
             suite_id=suite_id,
             passed=all(result.passed for result in results),
@@ -133,9 +129,7 @@ class Runner:
         tool = self.registry.get_tool(check.tool)
         started_at = utc_now()
         start = time.perf_counter()
-        suite, check_ref = self._resolve_suite_context(
-            check_id, suite_id, suite, check_ref, project_config
-        )
+        suite, check_ref = self._resolve_suite_context(check_id, suite_id, suite, check_ref, project_config)
         if argv_targets is None:
             argv_targets = self._argv_targets(check_id, target)
             if argv_targets is None:
@@ -272,9 +266,7 @@ class Runner:
         effective_ignores: EffectiveIgnores,
     ) -> _CheckLaunch:
         is_script_gate = check.tool == "script" or check.script is not None
-        report_rel = check.output_file or (
-            default_report_path(check_id) if is_script_gate else None
-        )
+        report_rel = check.output_file or (default_report_path(check_id) if is_script_gate else None)
         if is_script_gate:
             argv, env = build_script_argv(
                 self,
@@ -442,9 +434,7 @@ class Runner:
         suite_refs = suite.checks if suite else None
         return self._match_check_ref(suite_refs, check_id)
 
-    def _match_check_ref(
-        self, refs: list[SuiteCheckRef] | None, check_id: str
-    ) -> SuiteCheckRef | None:
+    def _match_check_ref(self, refs: list[SuiteCheckRef] | None, check_id: str) -> SuiteCheckRef | None:
         if not refs:
             return None
         for ref in refs:

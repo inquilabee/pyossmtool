@@ -70,9 +70,7 @@ def test_json_list_parser_maps_items() -> None:
 
 
 def test_shellcheck_parser_registered_and_parses() -> None:
-    payload = json.dumps(
-        [{"code": 2086, "level": "warning", "message": "Double quote", "file": "a.sh", "line": 1}]
-    )
+    payload = json.dumps([{"code": 2086, "level": "warning", "message": "Double quote", "file": "a.sh", "line": 1}])
     findings = REGISTRY["shellcheck_json"]().parse(payload, "")
     assert findings[0].rule_id == "SC2086"
     assert findings[0].location is not None

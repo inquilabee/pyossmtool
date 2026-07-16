@@ -43,9 +43,7 @@ class RuffJsonParser(JsonListParser):
 class RuffFormatParser(DiffTextParser):
     id = "ruff_format_text"
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         text = strip_ansi(stdout or stderr)
         if not text.strip():
             return []

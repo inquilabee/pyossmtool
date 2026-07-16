@@ -1,8 +1,11 @@
 [project]
 name = "pyaitools"
-version = "0.1.0"
+version = "0.0.1"
 description = "Quality-gate orchestrator for AI-assisted development"
+readme = "README.md"
 requires-python = ">=3.11,<3.14"
+license = "MIT"
+license-files = ["LICENSE"]
 dependencies = [
   "pydantic>=2.0",
   "pathspec>=0.12",
@@ -14,6 +17,7 @@ dependencies = [
 dev = [
   "pytest>=8.0",
   "pytest-cov>=6.0",
+  "ruff>=0.11.0",
 ]
 
 [project.scripts]
@@ -29,9 +33,29 @@ where = ["src"]
 [tool.setuptools.package-data]
 pyaitools = ["py.typed"]
 
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = [
+  "-m",
+  "not integration",
+  "--strict-config",
+  "--strict-markers",
+]
+filterwarnings = [
+  "error",
+]
+markers = [
+  "integration: tests that build wheels, install packages, or require external binaries/network",
+]
+
 [tool.ruff]
-line-length = 100
+line-length = 120
 target-version = "py311"
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I", "UP"]
 
 [tool.ty]
 # Repo-owned config; wins over bundled defaults when configs.mode=auto

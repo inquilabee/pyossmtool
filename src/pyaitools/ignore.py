@@ -92,9 +92,7 @@ def _ignore_spec_from(source) -> IgnoreSpec:
 
 def _effective_from_merged(merged: IgnoreSpec, project_root: Path) -> EffectiveIgnores:
     profile_files = [
-        str((project_root / rel).resolve())
-        for rel in merged.ignore_profile
-        if (project_root / rel).resolve().is_file()
+        str((project_root / rel).resolve()) for rel in merged.ignore_profile if (project_root / rel).resolve().is_file()
     ]
     path_patterns = [_normalize_pattern(pattern) for pattern in merged.ignore_paths]
     return EffectiveIgnores(profile_files=profile_files, path_patterns=path_patterns)
@@ -135,9 +133,7 @@ def materialize_for_tool(
 
 
 def ignore_env(ignores: EffectiveIgnores, project_root: Path) -> dict[str, str]:
-    profiles = [
-        str((project_root / rel).resolve()) for rel in _profile_rel_paths(ignores, project_root)
-    ]
+    profiles = [str((project_root / rel).resolve()) for rel in _profile_rel_paths(ignores, project_root)]
     env: dict[str, str] = {}
     if profiles:
         env["PYAITOOLS_IGNORE_PROFILES"] = "\n".join(profiles)

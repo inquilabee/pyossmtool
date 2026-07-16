@@ -152,9 +152,7 @@ def _extend_base_only(extend_key: str, base_config_path: Path | None) -> str | N
     return None
 
 
-def _extend_base_or_pyproject(
-    extend_key: str, project_root: Path, base_config_path: Path | None
-) -> str | None:
+def _extend_base_or_pyproject(extend_key: str, project_root: Path, base_config_path: Path | None) -> str | None:
     base = _extend_base_only(extend_key, base_config_path)
     if base:
         return base

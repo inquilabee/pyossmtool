@@ -211,10 +211,7 @@ def findings_from_report(report: FolderBreadthReport) -> list[dict[str, Any]]:
             {
                 "rule_id": "folder-breadth",
                 "severity": "error",
-                "message": (
-                    f"{violation.path} has {violation.count} sibling files "
-                    f"(max {violation.max_allowed})"
-                ),
+                "message": (f"{violation.path} has {violation.count} sibling files (max {violation.max_allowed})"),
                 "location": {"file": violation.path},
             }
         )
@@ -256,8 +253,7 @@ def _folder_breadth_exit(report: FolderBreadthReport, enforcing: bool) -> int:
         return 0
     for violation in report.violations:
         print(
-            f"FAIL folder-breadth: {violation.path} has {violation.count} files "
-            f"(max {violation.max_allowed})",
+            f"FAIL folder-breadth: {violation.path} has {violation.count} files (max {violation.max_allowed})",
             file=sys.stderr,
         )
     return 1

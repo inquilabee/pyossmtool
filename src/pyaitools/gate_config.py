@@ -51,9 +51,7 @@ def load_gate_config(
     return path, config
 
 
-def _paths_mode_override(
-    check_id: str, project_root: Path, project_config: ProjectConfig | None
-) -> Path | None:
+def _paths_mode_override(check_id: str, project_root: Path, project_config: ProjectConfig | None) -> Path | None:
     spec = project_config.configs if project_config else None
     if not spec or spec.mode != ConfigMode.PATHS:
         return None

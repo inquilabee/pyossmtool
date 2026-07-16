@@ -45,11 +45,7 @@ class Reporter:
         raw_stdout_path.write_text(stdout, encoding="utf-8")
         raw_stderr_path.write_text(stderr, encoding="utf-8")
 
-        cov_target = (
-            check.policy.coverage_source
-            if check.policy and check.policy.coverage_source
-            else "src/"
-        )
+        cov_target = check.policy.coverage_source if check.policy and check.policy.coverage_source else "src/"
         remediation = Remediation(
             docs_url=tool.documentation_url,
             suggested_commands=[

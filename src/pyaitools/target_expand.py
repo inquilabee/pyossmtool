@@ -77,9 +77,7 @@ def _glob_pattern(root: Path, pattern: str) -> set[str]:
     return found
 
 
-def format_check_argv(
-    check_argv: list[str], argv_targets: list[str], format_values: dict[str, str]
-) -> list[str]:
+def format_check_argv(check_argv: list[str], argv_targets: list[str], format_values: dict[str, str]) -> list[str]:
     formatted: list[str] = []
     for part in check_argv:
         if part == "{target}":

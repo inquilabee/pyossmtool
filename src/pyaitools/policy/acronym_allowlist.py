@@ -197,9 +197,7 @@ def find_violations_in_line(line: str, *, allowlisted: set[str]) -> list[str]:
     return tokens
 
 
-def find_violations_in_text(
-    text: str, *, path: str, allowlisted: set[str]
-) -> list[AcronymViolation]:
+def find_violations_in_text(text: str, *, path: str, allowlisted: set[str]) -> list[AcronymViolation]:
     prose = strip_markdown_code(text)
     violations: list[AcronymViolation] = []
     for line_no, line in enumerate(prose.splitlines(), start=1):

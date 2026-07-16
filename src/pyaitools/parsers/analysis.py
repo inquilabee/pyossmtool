@@ -23,9 +23,7 @@ class BanditParser(JsonListParser):
 
     id = "bandit_json"
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         if not stdout.strip():
             return []
         payload = json.loads(stdout)
@@ -55,9 +53,7 @@ class TyParser(LineRegexParser):
         r"^(?P<file>[^:]+):(?P<line>\d+):(?P<col>\d+):\s*(?P<kind>\w+):\s*(?P<message>.+)$"
     )
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         findings = super().parse(stdout, stderr, check=check)
         if findings:
             return findings
@@ -174,13 +170,8 @@ class JscpdParser(PolicyJsonParser):
                 Finding(
                     rule_id="duplicate-block",
                     severity=Severity.WARNING,
-                    message=(
-                        f"Duplicated block ({duplicate.get('lines', 0)} lines, "
-                        f"{duplicate.get('format', '')})"
-                    ),
-                    location=Location(
-                        file=first.get("name", ""), line=first.get("startLoc", {}).get("line")
-                    ),
+                    message=(f"Duplicated block ({duplicate.get('lines', 0)} lines, {duplicate.get('format', '')})"),
+                    location=Location(file=first.get("name", ""), line=first.get("startLoc", {}).get("line")),
                     snippet=f"also in {second.get('name', '')}",
                 )
             )
@@ -191,9 +182,7 @@ class JscpdParser(PolicyJsonParser):
 class SemgrepParser(Parser):
     id = "semgrep_json"
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         if not stdout.strip():
             return []
         payload = json.loads(stdout)
@@ -207,9 +196,7 @@ class SemgrepParser(Parser):
         metadata = extra.get("metadata", {})
         return Finding(
             rule_id=item.get("check_id", "semgrep"),
-            severity=Severity.ERROR
-            if extra.get("severity", "").upper() in {"ERROR", "HIGH"}
-            else Severity.WARNING,
+            severity=Severity.ERROR if extra.get("severity", "").upper() in {"ERROR", "HIGH"} else Severity.WARNING,
             message=extra.get("message", metadata.get("message", "semgrep finding")),
             location=Location(
                 file=item.get("path", ""),
@@ -227,15 +214,9 @@ class DeadcodeParser(Parser):
     id = "deadcode_text"
     _pattern = re.compile(r"(?P<file>[^:]+):(?P<line>\d+):\s*(?P<code>DC\d+):\s*(?P<message>.+)")
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         text = stdout or stderr
-        findings = [
-            finding
-            for line in text.splitlines()
-            if (finding := self._line_finding(line)) is not None
-        ]
+        findings = [finding for line in text.splitlines() if (finding := self._line_finding(line)) is not None]
         if findings:
             return findings
         return self._fallback(text)
@@ -280,9 +261,7 @@ class VultureParser(LineRegexParser):
 class PydepsCyclesParser(Parser):
     id = "pydeps_cycles_text"
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         text = (stdout if stdout else stderr).strip()
         if not text:
             return []
@@ -296,9 +275,7 @@ class PydepsCyclesParser(Parser):
             message = self._cycle_message(line)
             if message is None:
                 continue
-            findings.append(
-                Finding(rule_id="import-cycle", severity=Severity.ERROR, message=message)
-            )
+            findings.append(Finding(rule_id="import-cycle", severity=Severity.ERROR, message=message))
         return findings
 
     def _cycle_message(self, line: str) -> str | None:
@@ -315,9 +292,7 @@ class PytestParser(Parser):
     id = "pytest_text"
     _fail_pattern = re.compile(r"^(?P<file>[^\s]+):(?P<line>\d+):\s*(?P<message>.+)$")
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         text = (stdout or stderr).strip()
         if not text:
             return []
@@ -327,11 +302,7 @@ class PytestParser(Parser):
         return self._summary_findings(text)
 
     def _line_findings(self, text: str) -> list[Finding]:
-        return [
-            finding
-            for line in text.splitlines()
-            if (finding := self._line_finding(line)) is not None
-        ]
+        return [finding for line in text.splitlines() if (finding := self._line_finding(line)) is not None]
 
     def _line_finding(self, line: str) -> Finding | None:
         if line.startswith("FAILED ") or " FAILED" in line:
@@ -354,12 +325,5 @@ class PytestParser(Parser):
         )
 
     def _summary_findings(self, text: str) -> list[Finding]:
-        summary = [
-            line
-            for line in text.splitlines()
-            if "failed" in line.lower() or "error" in line.lower()
-        ]
-        return [
-            Finding(rule_id="pytest", severity=Severity.ERROR, message=line.strip())
-            for line in summary[-3:]
-        ]
+        summary = [line for line in text.splitlines() if "failed" in line.lower() or "error" in line.lower()]
+        return [Finding(rule_id="pytest", severity=Severity.ERROR, message=line.strip()) for line in summary[-3:]]

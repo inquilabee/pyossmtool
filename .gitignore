@@ -1,7 +1,15 @@
 reports/failures/
+reports/
 .pyaitools/
+.pyossmtool/
 venv/
+.venv/
 .ruff_cache/
+.pytest_cache/
 report/
 __pycache__/
 *.egg-info/
+dist/
+build/
+*.whl
+*.tar.gz

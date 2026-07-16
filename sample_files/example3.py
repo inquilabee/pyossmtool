@@ -6,6 +6,7 @@ def process_data(data_list):
             processed.append(item * 2)
     return processed
 
+
 def another_function():
     x = 1
     y = 2

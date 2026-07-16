@@ -11,9 +11,7 @@ from pyaitools.parsers.patterns import FallbackTextParser
 class MdformatParser(FallbackTextParser):
     id = "mdformat_text"
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         text = (stdout or stderr).strip()
         if not text:
             return []
@@ -50,9 +48,7 @@ class MdformatParser(FallbackTextParser):
 class YamlfmtParser(Parser):
     id = "yamlfmt_text"
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         text = (stdout or stderr).strip()
         if not text:
             return []

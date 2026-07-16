@@ -14,9 +14,7 @@ from pyaitools.parsers.common import finding_from_dict
 class CliTextParser(Parser):
     id = "cli_text"
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         text = (stdout or stderr).strip()
         if not text:
             return []
@@ -34,9 +32,7 @@ class CliTextParser(Parser):
 class ScriptTextParser(Parser):
     id = "script_text"
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         findings: list[Finding] = []
         for line in (stdout or stderr).splitlines():
             finding = self._fail_finding(line)
@@ -67,9 +63,7 @@ class ScriptTextParser(Parser):
 class GateJsonParser(Parser):
     id = "gate_json"
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         text = stdout.strip()
         if not text:
             return ScriptTextParser().parse(stdout, stderr)
@@ -94,7 +88,5 @@ class GateJsonParser(Parser):
 class NoopParser(Parser):
     id = "noop"
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         return []

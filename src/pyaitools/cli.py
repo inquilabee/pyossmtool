@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -102,13 +101,11 @@ def install(
 
 @app.command("run")
 def run(
-    suite: Optional[str] = typer.Option(None, "--suite", help="Suite id to run"),
-    check: Optional[str] = typer.Option(None, "--check", help="Single check id to run"),
-    target: Optional[str] = typer.Option(None, "--target", help="Target path for single check"),
+    suite: str | None = typer.Option(None, "--suite", help="Suite id to run"),
+    check: str | None = typer.Option(None, "--check", help="Single check id to run"),
+    target: str | None = typer.Option(None, "--target", help="Target path for single check"),
     fail_fast: bool = typer.Option(False, "--fail-fast", help="Stop at first failure"),
-    verbose: bool = typer.Option(
-        False, "--verbose", help="Print commands and keep raw artifacts on success"
-    ),
+    verbose: bool = typer.Option(False, "--verbose", help="Print commands and keep raw artifacts on success"),
 ) -> None:
     registry = _registry()
     project_root = _project_root()

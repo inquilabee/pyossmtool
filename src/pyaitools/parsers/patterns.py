@@ -14,9 +14,7 @@ from pyaitools.parsers.base import Parser
 class JsonListParser(Parser):
     """JSON array in stdout (or stderr if stdout empty) → map_item per entry."""
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         payload_text = stdout.strip() or stderr.strip()
         if not payload_text:
             return []
@@ -38,9 +36,7 @@ class JsonListParser(Parser):
 class LineRegexParser(Parser):
     pattern: ClassVar[re.Pattern[str]]
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         return self._map_lines(stdout or stderr)
 
     def _map_lines(self, text: str) -> list[Finding]:
@@ -66,9 +62,7 @@ class DiffTextParser(Parser):
 class PolicyJsonParser(Parser):
     needs_check: ClassVar[bool] = True
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         if check is None:
             raise ValueError(f"{self.id} requires check")
         if not stdout.strip():

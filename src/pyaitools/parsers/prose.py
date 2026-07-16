@@ -23,9 +23,7 @@ def _load_json_or_none(payload_text: str) -> Any:
 class GitleaksParser(Parser):
     id = "gitleaks_json"
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         payload_text = stdout.strip() or stderr.strip()
         if not payload_text:
             return []
@@ -68,9 +66,7 @@ class CodespellParser(LineRegexParser):
 class MarkdownlintParser(Parser):
     id = "markdownlint_json"
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         payload_text = stdout.strip() or stderr.strip()
         if not payload_text:
             return []
@@ -107,9 +103,7 @@ class MarkdownlintParser(Parser):
         return Finding(
             rule_id=rule_id,
             severity=Severity.ERROR,
-            message=item.get(
-                "ruleDescription", item.get("ruleInformation", "markdownlint finding")
-            ),
+            message=item.get("ruleDescription", item.get("ruleInformation", "markdownlint finding")),
             location=Location(
                 file=file_path,
                 line=item.get("lineNumber"),
@@ -145,9 +139,7 @@ class YamllintParser(LineRegexParser):
 class HadolintParser(Parser):
     id = "hadolint_json"
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         payload_text = stdout.strip() or stderr.strip()
         if not payload_text:
             return []
@@ -169,9 +161,7 @@ class HadolintParser(Parser):
 class MutmutParser(FallbackTextParser):
     id = "mutmut_text"
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         text = (stdout or stderr).strip()
         if not text or self._all_passed(text):
             return []
@@ -186,9 +176,7 @@ class MutmutParser(FallbackTextParser):
 class SourceryParser(FallbackTextParser):
     id = "sourcery_text"
 
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         text = (stdout or stderr).strip()
         if not text:
             return []

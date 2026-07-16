@@ -41,9 +41,7 @@ def _defaults_dir() -> Path:
 
 
 def test_config_auto_uses_bundled_when_repo_has_none(tmp_path: Path) -> None:
-    tool = _tool(
-        config=ToolConfigSpec(flag="--config", bundled="ruff.toml", repo_files=["ruff.toml"])
-    )
+    tool = _tool(config=ToolConfigSpec(flag="--config", bundled="ruff.toml", repo_files=["ruff.toml"]))
     resolver = ConfigResolver(tmp_path)
     resolver.defaults_dir = _defaults_dir()
     path = resolver.resolve_config_path(tool, None)
@@ -54,9 +52,7 @@ def test_config_auto_uses_bundled_when_repo_has_none(tmp_path: Path) -> None:
 
 def test_config_auto_skips_when_repo_file_present(tmp_path: Path) -> None:
     (tmp_path / "ruff.toml").write_text("line-length = 100\n", encoding="utf-8")
-    tool = _tool(
-        config=ToolConfigSpec(flag="--config", bundled="ruff.toml", repo_files=["ruff.toml"])
-    )
+    tool = _tool(config=ToolConfigSpec(flag="--config", bundled="ruff.toml", repo_files=["ruff.toml"]))
     resolver = ConfigResolver(tmp_path)
     assert resolver.resolve_config_path(tool, None) is None
     assert resolver.extra_argv(tool, None) == []

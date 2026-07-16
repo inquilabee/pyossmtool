@@ -13,9 +13,7 @@ class Parser(ABC):
     needs_check: ClassVar[bool] = False
 
     @abstractmethod
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
+    def parse(self, stdout: str, stderr: str = "", *, check: CheckDef | None = None) -> list[Finding]:
         raise NotImplementedError
 
 
