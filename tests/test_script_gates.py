@@ -4,8 +4,11 @@ import json
 from pathlib import Path
 
 from pyaitools.models import Severity
-from pyaitools.parsers.gate_parsers import parse_gate_json, parse_script_text
+from pyaitools.parsers.base import REGISTRY
 from pyaitools.registry import Registry
+
+# Ensure registration
+import pyaitools.parsers  # noqa: F401
 
 
 def test_registry_loads_project_script_gate(tmp_path: Path) -> None:
@@ -41,7 +44,7 @@ def test_parse_gate_json_findings() -> None:
             }
         ]
     }
-    findings = parse_gate_json(json.dumps(payload), "")
+    findings = REGISTRY["gate_json"]().parse(json.dumps(payload), "")
     assert len(findings) == 1
     assert findings[0].rule_id == "line-limit"
     assert findings[0].severity == Severity.ERROR
@@ -50,6 +53,6 @@ def test_parse_gate_json_findings() -> None:
 
 
 def test_parse_script_text_fail_lines() -> None:
-    findings = parse_script_text("", "FAIL module-size: src/foo.py has 999 lines\n")
+    findings = REGISTRY["script_text"]().parse("", "FAIL module-size: src/foo.py has 999 lines\n")
     assert len(findings) == 1
     assert "foo.py" in findings[0].message

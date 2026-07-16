@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, ClassVar
+from typing import ClassVar
 
 from pyaitools.models import CheckDef, Finding
 
 
 class Parser(ABC):
     id: ClassVar[str]
-    uses_stderr: ClassVar[bool] = True
     needs_check: ClassVar[bool] = False
 
     @abstractmethod
@@ -18,9 +17,6 @@ class Parser(ABC):
         self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
     ) -> list[Finding]:
         raise NotImplementedError
-
-    def parse_one(self, item: Any) -> Finding | None:
-        raise NotImplementedError(f"{type(self).__name__} does not implement parse_one")
 
 
 REGISTRY: dict[str, type[Parser]] = {}

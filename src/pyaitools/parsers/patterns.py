@@ -4,14 +4,15 @@ from __future__ import annotations
 
 import json
 import re
-from typing import ClassVar
+from abc import abstractmethod
+from typing import Any, ClassVar
 
 from pyaitools.models import CheckDef, Finding
 from pyaitools.parsers.base import Parser
 
 
 class JsonListParser(Parser):
-    """JSON array in stdout (or stderr if stdout empty) → parse_one per item."""
+    """JSON array in stdout (or stderr if stdout empty) → map_item per entry."""
 
     def parse(
         self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
@@ -19,13 +20,19 @@ class JsonListParser(Parser):
         payload_text = stdout.strip() or stderr.strip()
         if not payload_text:
             return []
-        payload = json.loads(payload_text)
+        return self._map_items(json.loads(payload_text))
+
+    def _map_items(self, payload: list) -> list[Finding]:
         findings: list[Finding] = []
         for item in payload:
-            finding = self.parse_one(item)
+            finding = self.map_item(item)
             if finding is not None:
                 findings.append(finding)
         return findings
+
+    @abstractmethod
+    def map_item(self, item: Any) -> Finding | None:
+        raise NotImplementedError
 
 
 class LineRegexParser(Parser):
@@ -34,25 +41,26 @@ class LineRegexParser(Parser):
     def parse(
         self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
     ) -> list[Finding]:
-        text = stdout or stderr
+        return self._map_lines(stdout or stderr)
+
+    def _map_lines(self, text: str) -> list[Finding]:
         findings: list[Finding] = []
         for line in text.splitlines():
             match = self.pattern.match(line.strip())
             if not match:
                 continue
-            finding = self.parse_one(match)
+            finding = self.map_match(match)
             if finding is not None:
                 findings.append(finding)
         return findings
 
+    @abstractmethod
+    def map_match(self, match: re.Match[str]) -> Finding | None:
+        raise NotImplementedError
+
 
 class DiffTextParser(Parser):
-    """Override parse(); subclasses implement format-diff scanning."""
-
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
-        raise NotImplementedError
+    """Subclasses implement format-diff scanning in parse()."""
 
 
 class PolicyJsonParser(Parser):
@@ -67,12 +75,10 @@ class PolicyJsonParser(Parser):
             return []
         return self.parse_payload(json.loads(stdout), check)
 
+    @abstractmethod
     def parse_payload(self, payload: dict, check: CheckDef) -> list[Finding]:
         raise NotImplementedError
 
 
 class FallbackTextParser(Parser):
-    def parse(
-        self, stdout: str, stderr: str = "", *, check: CheckDef | None = None
-    ) -> list[Finding]:
-        raise NotImplementedError
+    """Subclasses implement free-form text parsing in parse()."""
