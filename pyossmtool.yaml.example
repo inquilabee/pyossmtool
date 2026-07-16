@@ -1,26 +1,14 @@
 # Copy to your consumer repo as pyossmtool.yaml
-suite: standard
+suite: python-quality
 env: auto  # auto | managed | project
+target: .  # optional scan root (default .)
 
-# Ignore rules (union-merged with suite defaults and per-check overrides)
+# Ignore rules (union-merged with suite defaults; .gitignore is always applied)
 # ignore-profile:
-#   - .gitignore
 #   - .cursorignore
 # ignore-paths:
 #   - build/
 #   - tmp/
-
-# Scan roots — set paths for your repository layout
-targets:
-  python: src/
-  tests: tests/
-  coverage: src/
-  shell: bin/
-  markdown: .
-  yaml: .
-  prose: .
-  repo: .
-  dockerfile: Dockerfile
 
 # Optional per-check overrides (inherit suite checks when empty)
 # checks:
@@ -44,5 +32,5 @@ configs:
   # paths:
   #   gate.module-size: .pyossmtool/configs/gates/gate.module-size.yaml
 
-# Policy gate overrides (optional) — see defaults/configs/gates/*.yaml
+# Policy gate overrides (optional) — see package defaults/configs/gates/*.yaml
 # .pyossmtool/configs/gates/gate.module-size.yaml
