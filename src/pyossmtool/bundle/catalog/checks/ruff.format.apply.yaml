@@ -1,0 +1,11 @@
+id: ruff.format.apply
+tool: ruff
+name: Ruff Format Apply
+description: Apply Ruff formatting to Python sources.
+mode: format
+argv:
+  - format
+  - "{target}"
+parser: noop
+success:
+  exit_codes: [0]

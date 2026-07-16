@@ -114,6 +114,11 @@ class ConfigMode(StrEnum):
     PATHS = "paths"
 
 
+class CheckMode(StrEnum):
+    CHECK = "check"
+    FORMAT = "format"
+
+
 class ConfigSpec(BaseModel):
     mode: ConfigMode = ConfigMode.AUTO
     paths: dict[str, str] = Field(default_factory=dict)
@@ -145,6 +150,7 @@ class CheckDef(BaseModel):
     description: str
     argv: list[str] = Field(default_factory=list)
     parser: str
+    mode: CheckMode = CheckMode.CHECK
     script: str | None = None
     include: list[str] = Field(default_factory=list)
     config: GateConfigSpec | None = None

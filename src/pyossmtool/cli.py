@@ -9,7 +9,7 @@ import typer
 
 from pyossmtool.gates import lib_path, scaffold_gate
 from pyossmtool.installer import Installer
-from pyossmtool.models import FailureReport
+from pyossmtool.models import CheckMode, FailureReport
 from pyossmtool.registry import Registry
 from pyossmtool.runner import Runner
 
@@ -42,7 +42,7 @@ def list_checks() -> None:
     registry = _registry()
     for check in registry.checks.values():
         origin = "project" if check.tool == "script" else "bundled"
-        typer.echo(f"{check.id}\t{check.tool}\t{check.name}\t({origin})")
+        typer.echo(f"{check.id}\t{check.tool}\t{check.name}\t{check.mode.value}\t({origin})")
 
 
 @list_app.command("suites")
@@ -78,7 +78,7 @@ def gate_init(
     typer.echo(f"  - id: {catalog_path.stem}")
     typer.echo("")
     typer.echo("Run it:")
-    typer.echo(f"  pyossmtool run --check {catalog_path.stem} --target .")
+    typer.echo(f"  pyossmtool check --check {catalog_path.stem} --target .")
 
 
 @app.command("schema")
@@ -99,29 +99,58 @@ def install(
         raise typer.Exit(code=2) from exc
 
 
-@app.command("run")
-def run(
+@app.command("check")
+def check_cmd(
     suite: str | None = typer.Option(None, "--suite", help="Suite id to run"),
     check: str | None = typer.Option(None, "--check", help="Single check id to run"),
     target: str | None = typer.Option(None, "--target", help="Target path for single check"),
     fail_fast: bool = typer.Option(False, "--fail-fast", help="Stop at first failure"),
     verbose: bool = typer.Option(False, "--verbose", help="Print commands and keep raw artifacts on success"),
 ) -> None:
+    """Report-only quality checks (no file writes from formatters)."""
+    raise typer.Exit(code=_execute(CheckMode.CHECK, suite, check, target, fail_fast, verbose))
+
+
+@app.command("format")
+def format_cmd(
+    suite: str | None = typer.Option("format", "--suite", help="Suite id to run"),
+    check: str | None = typer.Option(None, "--check", help="Single check id to run"),
+    target: str | None = typer.Option(None, "--target", help="Target path for single check"),
+    fail_fast: bool = typer.Option(False, "--fail-fast", help="Stop at first failure"),
+    verbose: bool = typer.Option(False, "--verbose", help="Print commands and keep raw artifacts on success"),
+) -> None:
+    """Apply formatters / autofix checks that write to the tree."""
+    raise typer.Exit(code=_execute(CheckMode.FORMAT, suite, check, target, fail_fast, verbose))
+
+
+def _execute(
+    mode: CheckMode,
+    suite: str | None,
+    check: str | None,
+    target: str | None,
+    fail_fast: bool,
+    verbose: bool,
+) -> int:
     registry = _registry()
     project_root = _project_root()
     project_config = registry.load_project_config(project_root)
     runner = Runner(registry, project_root, verbose=verbose)
 
     if check:
-        raise typer.Exit(code=_run_single_check(runner, check, target, suite, project_config))
+        return _run_single_check(runner, check, target, suite, project_config, mode)
 
     suite_id = suite or (project_config.suite if project_config else None)
     if not suite_id:
         typer.echo("SETUP provide --suite or create pyossmtool.yaml", err=True)
-        raise typer.Exit(code=2)
+        return 2
 
-    suite_result = runner.run_suite(suite_id, project_config=project_config, fail_fast=fail_fast)
-    raise typer.Exit(code=_emit_suite_result(suite_result))
+    suite_result = runner.run_suite(
+        suite_id,
+        project_config=project_config,
+        fail_fast=fail_fast,
+        mode=mode,
+    )
+    return _emit_suite_result(suite_result)
 
 
 def _run_single_check(
@@ -130,9 +159,17 @@ def _run_single_check(
     target: str | None,
     suite: str | None,
     project_config,
+    mode: CheckMode,
 ) -> int:
     if not target:
         typer.echo("SETUP --target is required with --check", err=True)
+        return 2
+    check_def = runner.registry.get_check(check)
+    if check_def.mode != mode:
+        typer.echo(
+            f"SETUP check '{check}' has mode={check_def.mode.value}; use pyossmtool {check_def.mode.value}",
+            err=True,
+        )
         return 2
     result = runner.run_check(
         check,
@@ -175,7 +212,6 @@ def main() -> None:
     app()
 
 
-# Typer sub-app commands are registered via decorators; keep references for static analysis.
 _TYPER_COMMANDS = (
     list_tools,
     list_checks,
@@ -184,6 +220,8 @@ _TYPER_COMMANDS = (
     gate_init,
     export_schema,
     install,
+    check_cmd,
+    format_cmd,
 )
 
 

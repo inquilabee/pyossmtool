@@ -1,0 +1,10 @@
+id: mdformat.apply
+tool: mdformat
+name: mdformat Apply
+description: Apply Markdown formatting.
+mode: format
+argv:
+  - "{target}"
+parser: noop
+success:
+  exit_codes: [0]

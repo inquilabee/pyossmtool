@@ -21,6 +21,7 @@ from pyossmtool.ignore import (
 )
 from pyossmtool.models import (
     CheckDef,
+    CheckMode,
     CheckResult,
     EnvMode,
     Finding,
@@ -71,16 +72,26 @@ class Runner:
         suite_id: str,
         project_config: ProjectConfig | None = None,
         fail_fast: bool = False,
+        mode: CheckMode = CheckMode.CHECK,
     ) -> SuiteResult:
         suite = self.registry.get_suite(suite_id)
         env_mode = project_config.env if project_config else suite.env
         check_refs = project_config.checks if project_config and project_config.checks else suite.checks
+        check_refs = self._filter_check_refs(check_refs, mode)
         results = self._run_suite_checks(suite_id, suite, check_refs, env_mode, project_config, fail_fast)
         return SuiteResult(
             suite_id=suite_id,
             passed=all(result.passed for result in results),
             results=results,
         )
+
+    def _filter_check_refs(self, check_refs: list[SuiteCheckRef], mode: CheckMode) -> list[SuiteCheckRef]:
+        filtered: list[SuiteCheckRef] = []
+        for check_ref in check_refs:
+            check = self.registry.get_check(check_ref.id)
+            if check.mode == mode:
+                filtered.append(check_ref)
+        return filtered
 
     def _run_suite_checks(
         self,

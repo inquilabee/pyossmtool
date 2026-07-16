@@ -1,0 +1,10 @@
+id: format
+name: Format Apply
+description: Apply formatters across Python, shell, Markdown, and YAML.
+env: auto
+target: .
+checks:
+  - id: ruff.format.apply
+  - id: shfmt.apply
+  - id: mdformat.apply
+  - id: yamlfmt.apply
