@@ -107,4 +107,13 @@ class Installer:
 
     def _install_npm(self, tool: ToolDef) -> None:
         package = tool.install.package or tool.id
-        subprocess.run(["npm", "install", "-g", package], check=True)
+        npm_root = self.project_root / ".pyossmtool" / "tools" / "npm"
+        npm_root.mkdir(parents=True, exist_ok=True)
+        package_json = npm_root / "package.json"
+        if not package_json.exists():
+            package_json.write_text('{"name":"pyossmtool-tools","private":true}\n', encoding="utf-8")
+        subprocess.run(
+            ["npm", "install", "--no-save", "--prefix", str(npm_root), package],
+            check=True,
+            cwd=npm_root,
+        )

@@ -31,6 +31,7 @@ class BinaryResolver:
     def _venv_bin_dirs(self) -> list[Path]:
         candidates = [
             self.project_root / ".pyossmtool" / "tools" / "venv" / "bin",
+            self.project_root / ".pyossmtool" / "tools" / "npm" / "node_modules" / ".bin",
             self.project_root / ".venv" / "bin",
             self.project_root / "venv" / "bin",
             self.local_tools_root / "bin",
@@ -103,6 +104,9 @@ class BinaryResolver:
         return None
 
     def _resolve_npm(self, binary_name: str) -> Path | None:
+        managed = self.project_root / ".pyossmtool" / "tools" / "npm" / "node_modules" / ".bin" / binary_name
+        if managed.exists():
+            return managed
         local = self.project_root / "node_modules" / ".bin" / binary_name
         if local.exists():
             return local
@@ -114,6 +118,10 @@ class BinaryResolver:
             candidate = managed_venv_bin / tool.binary
             if candidate.exists():
                 return candidate
+        if tool.install.method.value == "npm":
+            npm_bin = self._resolve_npm(tool.binary)
+            if npm_bin is not None:
+                return npm_bin
         for bin_dir in [self.local_tools_root / "bin", self.cache_root / "bin"]:
             candidate = bin_dir / tool.binary
             if candidate.exists():
