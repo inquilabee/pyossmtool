@@ -15,7 +15,7 @@
 | Project state dir | `.pyossmtool/` |
 | Version | `0.0.1` |
 
-Hard cut: no `pyaitools` compatibility shims in 0.0.1.
+Hard cut: no `pyossmtool` compatibility shims in 0.0.1.
 
 ## Architecture
 
@@ -86,6 +86,6 @@ Framework code quality is a product feature:
 ## Out of scope for 0.0.1
 
 - Multi-root typed `targets:` map
-- Compatibility with the taken PyPI name `pyaitools`
+- Compatibility with the taken PyPI name `pyossmtool`
 - Consumer pre-commit / Trunk productization
 - Renaming the git checkout directory

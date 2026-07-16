@@ -6,32 +6,32 @@
 
 **Architecture:** `Parser` ABC + `@register` into `REGISTRY`; pattern bases (`JsonListParser`, `LineRegexParser`, `DiffTextParser`, `PolicyJsonParser`, `FallbackTextParser`) hold shared logic; concrete classes set `id` matching catalog keys. `parse_output` looks up `REGISTRY[check.parser]` and calls `.parse(...)`.
 
-**Tech Stack:** Python 3.11+, pydantic `Finding`/`CheckDef`, pytest, existing pyaitools runner.
+**Tech Stack:** Python 3.11+, pydantic `Finding`/`CheckDef`, pytest, existing pyossmtool runner.
 
 **Spec:** `docs/superpowers/specs/2026-07-16-parser-registry-design.md`
 
 ## Global Constraints
 
 - Keep catalog `parser:` string ids unchanged (e.g. `shellcheck_json`, `ruff_json`, `ty_concise`).
-- Keep public `from pyaitools.parsers import parse_output`.
+- Keep public `from pyossmtool.parsers import parse_output`.
 - Do not add finding-invariant validation in this plan.
-- Preserve radon A-only / existing quality gates on `src/pyaitools`.
+- Preserve radon A-only / existing quality gates on `src/pyossmtool`.
 - Prefer thin classes; extract helpers if a method would exceed complexity rank A.
 
 ## File map
 
 | File | Responsibility |
 |------|----------------|
-| `src/pyaitools/parsers/base.py` | `Parser` ABC, `REGISTRY`, `register` |
-| `src/pyaitools/parsers/patterns.py` | Shared pattern bases |
-| `src/pyaitools/parsers/ruff.py` | `ruff_json`, `ruff_format_text` |
-| `src/pyaitools/parsers/shell.py` | `shellcheck_json`, `shfmt_diff` |
-| `src/pyaitools/parsers/analysis.py` | ty, bandit, radon, jscpd, semgrep, deadcode, vulture, pydeps, pytest |
-| `src/pyaitools/parsers/format_text.py` | `mdformat_text`, `yamlfmt_text` |
-| `src/pyaitools/parsers/prose.py` | gitleaks, codespell, markdownlint, yamllint, hadolint, mutmut, sourcery |
-| `src/pyaitools/parsers/gates.py` | `cli_text`, `gate_json`, `script_text`, `noop` |
-| `src/pyaitools/parsers/common.py` | Keep helpers (`strip_ansi`, `finding_from_dict`, `RANK_ORDER`) |
-| `src/pyaitools/parsers/__init__.py` | Import modules for registration; export `parse_output`, `REGISTRY` |
+| `src/pyossmtool/parsers/base.py` | `Parser` ABC, `REGISTRY`, `register` |
+| `src/pyossmtool/parsers/patterns.py` | Shared pattern bases |
+| `src/pyossmtool/parsers/ruff.py` | `ruff_json`, `ruff_format_text` |
+| `src/pyossmtool/parsers/shell.py` | `shellcheck_json`, `shfmt_diff` |
+| `src/pyossmtool/parsers/analysis.py` | ty, bandit, radon, jscpd, semgrep, deadcode, vulture, pydeps, pytest |
+| `src/pyossmtool/parsers/format_text.py` | `mdformat_text`, `yamlfmt_text` |
+| `src/pyossmtool/parsers/prose.py` | gitleaks, codespell, markdownlint, yamllint, hadolint, mutmut, sourcery |
+| `src/pyossmtool/parsers/gates.py` | `cli_text`, `gate_json`, `script_text`, `noop` |
+| `src/pyossmtool/parsers/common.py` | Keep helpers (`strip_ansi`, `finding_from_dict`, `RANK_ORDER`) |
+| `src/pyossmtool/parsers/__init__.py` | Import modules for registration; export `parse_output`, `REGISTRY` |
 | Delete after migration | `python_parsers.py`, `analysis_parsers.py`, `format_parsers.py`, `prose_parsers.py`, `gate_parsers.py` |
 | `tests/test_parser_registry.py` | Registry + pattern + parse_output smoke tests |
 | `tests/test_script_gates.py` | Point at gate parser classes / `parse_output` |
@@ -41,13 +41,13 @@
 ### Task 1: Base registry and pattern scaffolding
 
 **Files:**
-- Create: `src/pyaitools/parsers/base.py`
-- Create: `src/pyaitools/parsers/patterns.py`
+- Create: `src/pyossmtool/parsers/base.py`
+- Create: `src/pyossmtool/parsers/patterns.py`
 - Create: `tests/test_parser_registry.py`
 - Modify: (none yet for production callers)
 
 **Interfaces:**
-- Consumes: `CheckDef`, `Finding` from `pyaitools.models`
+- Consumes: `CheckDef`, `Finding` from `pyossmtool.models`
 - Produces: `Parser`, `register`, `REGISTRY`, `JsonListParser`, `LineRegexParser`, `DiffTextParser`, `PolicyJsonParser`, `FallbackTextParser`
 
 - [ ] **Step 1: Write failing registry tests**
@@ -58,9 +58,9 @@ from __future__ import annotations
 
 import json
 
-from pyaitools.models import CheckDef, Finding, Severity, SuccessCriteria
-from pyaitools.parsers.base import REGISTRY, Parser, register
-from pyaitools.parsers.patterns import JsonListParser
+from pyossmtool.models import CheckDef, Finding, Severity, SuccessCriteria
+from pyossmtool.parsers.base import REGISTRY, Parser, register
+from pyossmtool.parsers.patterns import JsonListParser
 
 
 def test_register_adds_parser_id() -> None:
@@ -96,18 +96,18 @@ def test_json_list_parser_maps_items() -> None:
 - [ ] **Step 2: Run tests — expect fail (modules missing)**
 
 Run: `uv run pytest tests/test_parser_registry.py -v`  
-Expected: FAIL with import error for `pyaitools.parsers.base` / `patterns`
+Expected: FAIL with import error for `pyossmtool.parsers.base` / `patterns`
 
 - [ ] **Step 3: Implement `base.py`**
 
 ```python
-# src/pyaitools/parsers/base.py
+# src/pyossmtool/parsers/base.py
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import Any, ClassVar
 
-from pyaitools.models import CheckDef, Finding
+from pyossmtool.models import CheckDef, Finding
 
 REGISTRY: dict[str, type[Parser]] = {}
 
@@ -147,15 +147,15 @@ Put `REGISTRY` and `register` **after** the `Parser` class definition to avoid f
 - [ ] **Step 4: Implement `patterns.py` (JsonListParser minimum for the test)**
 
 ```python
-# src/pyaitools/parsers/patterns.py
+# src/pyossmtool/parsers/patterns.py
 from __future__ import annotations
 
 import json
 import re
 from typing import Any, ClassVar
 
-from pyaitools.models import CheckDef, Finding
-from pyaitools.parsers.base import Parser
+from pyossmtool.models import CheckDef, Finding
+from pyossmtool.parsers.base import Parser
 
 
 class JsonListParser(Parser):
@@ -227,7 +227,7 @@ Expected: PASS
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/pyaitools/parsers/base.py src/pyaitools/parsers/patterns.py tests/test_parser_registry.py
+git add src/pyossmtool/parsers/base.py src/pyossmtool/parsers/patterns.py tests/test_parser_registry.py
 git commit -m "$(cat <<'EOF'
 Add parser ABC, registry, and JsonListParser pattern base.
 
@@ -240,9 +240,9 @@ EOF
 ### Task 2: Migrate JSON-list parsers (shellcheck, bandit, ruff json)
 
 **Files:**
-- Create: `src/pyaitools/parsers/shell.py`
-- Create: `src/pyaitools/parsers/ruff.py`
-- Create: `src/pyaitools/parsers/analysis.py` (start with bandit)
+- Create: `src/pyossmtool/parsers/shell.py`
+- Create: `src/pyossmtool/parsers/ruff.py`
+- Create: `src/pyossmtool/parsers/analysis.py` (start with bandit)
 - Modify: `tests/test_parser_registry.py` (add id smoke asserts after registration imports)
 - Reference behavior: current `format_parsers.parse_shellcheck`, `python_parsers.parse_ruff_json`, `analysis_parsers.parse_bandit`
 
@@ -254,8 +254,8 @@ EOF
 
 ```python
 def test_shellcheck_parser_registered_and_parses() -> None:
-    from pyaitools.parsers import shell  # noqa: F401
-    from pyaitools.parsers.base import REGISTRY
+    from pyossmtool.parsers import shell  # noqa: F401
+    from pyossmtool.parsers.base import REGISTRY
 
     payload = json.dumps(
         [{"code": 2086, "level": "warning", "message": "Double quote", "file": "a.sh", "line": 1}]
@@ -307,7 +307,7 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/pyaitools/parsers/shell.py src/pyaitools/parsers/ruff.py src/pyaitools/parsers/analysis.py tests/test_parser_registry.py
+git add src/pyossmtool/parsers/shell.py src/pyossmtool/parsers/ruff.py src/pyossmtool/parsers/analysis.py tests/test_parser_registry.py
 git commit -m "$(cat <<'EOF'
 Register shellcheck, ruff JSON, and bandit JsonList parsers.
 
@@ -320,9 +320,9 @@ EOF
 ### Task 3: Migrate line-regex and policy parsers
 
 **Files:**
-- Modify: `src/pyaitools/parsers/analysis.py`
-- Modify: `src/pyaitools/parsers/prose.py` (create)
-- Modify: `src/pyaitools/parsers/patterns.py` (complete `LineRegexParser` summary hooks if needed; implement `PolicyJsonParser.parse` skeleton used by radon)
+- Modify: `src/pyossmtool/parsers/analysis.py`
+- Modify: `src/pyossmtool/parsers/prose.py` (create)
+- Modify: `src/pyossmtool/parsers/patterns.py` (complete `LineRegexParser` summary hooks if needed; implement `PolicyJsonParser.parse` skeleton used by radon)
 
 **Interfaces:**
 - Consumes: `LineRegexParser`, `PolicyJsonParser`, `RANK_ORDER` from `common`
@@ -332,8 +332,8 @@ EOF
 
 ```python
 def test_ty_parser_parses_concise_line() -> None:
-    from pyaitools.parsers import analysis  # noqa: F401
-    from pyaitools.parsers.base import REGISTRY
+    from pyossmtool.parsers import analysis  # noqa: F401
+    from pyossmtool.parsers.base import REGISTRY
 
     line = "src/a.py:1:2: error: Unknown name\n"
     findings = REGISTRY["ty_concise"]().parse(line, "")
@@ -378,7 +378,7 @@ Expected: PASS (script gates still on old modules until Task 5)
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/pyaitools/parsers/patterns.py src/pyaitools/parsers/analysis.py src/pyaitools/parsers/prose.py tests/test_parser_registry.py
+git add src/pyossmtool/parsers/patterns.py src/pyossmtool/parsers/analysis.py src/pyossmtool/parsers/prose.py tests/test_parser_registry.py
 git commit -m "$(cat <<'EOF'
 Add line-regex and policy JSON parser classes.
 
@@ -391,12 +391,12 @@ EOF
 ### Task 4: Migrate diff / fallback / remaining text parsers
 
 **Files:**
-- Modify: `src/pyaitools/parsers/ruff.py` (`ruff_format_text`)
-- Modify: `src/pyaitools/parsers/shell.py` (`shfmt_diff`)
-- Create: `src/pyaitools/parsers/format_text.py` (`mdformat_text`, `yamlfmt_text`)
-- Modify: `src/pyaitools/parsers/prose.py` (gitleaks, markdownlint, hadolint, mutmut, sourcery)
-- Modify: `src/pyaitools/parsers/analysis.py` (semgrep, pydeps, pytest)
-- Create: `src/pyaitools/parsers/gates.py`
+- Modify: `src/pyossmtool/parsers/ruff.py` (`ruff_format_text`)
+- Modify: `src/pyossmtool/parsers/shell.py` (`shfmt_diff`)
+- Create: `src/pyossmtool/parsers/format_text.py` (`mdformat_text`, `yamlfmt_text`)
+- Modify: `src/pyossmtool/parsers/prose.py` (gitleaks, markdownlint, hadolint, mutmut, sourcery)
+- Modify: `src/pyossmtool/parsers/analysis.py` (semgrep, pydeps, pytest)
+- Create: `src/pyossmtool/parsers/gates.py`
 
 **Interfaces:**
 - Consumes: `DiffTextParser` / `FallbackTextParser` / custom `parse()` where patterns do not fit
@@ -415,8 +415,8 @@ REQUIRED_PARSER_IDS = {
 }
 
 def test_all_catalog_parser_ids_registered() -> None:
-    import pyaitools.parsers as parsers_pkg  # ensures side-effect imports
-    from pyaitools.parsers.base import REGISTRY
+    import pyossmtool.parsers as parsers_pkg  # ensures side-effect imports
+    from pyossmtool.parsers.base import REGISTRY
 
     missing = REQUIRED_PARSER_IDS - set(REGISTRY)
     assert not missing, f"Missing parsers: {sorted(missing)}"
@@ -436,7 +436,7 @@ Expected: PASS
 - [ ] **Step 4: Commit**
 
 ```bash
-git add src/pyaitools/parsers/
+git add src/pyossmtool/parsers/
 git commit -m "$(cat <<'EOF'
 Port remaining tool parsers onto registered classes.
 
@@ -449,7 +449,7 @@ EOF
 ### Task 5: Switch `parse_output` to registry; delete old modules
 
 **Files:**
-- Modify: `src/pyaitools/parsers/__init__.py`
+- Modify: `src/pyossmtool/parsers/__init__.py`
 - Modify: `tests/test_script_gates.py`
 - Modify: `tests/test_parser_registry.py` (enable full id coverage + `parse_output` smoke)
 - Delete: `python_parsers.py`, `analysis_parsers.py`, `format_parsers.py`, `prose_parsers.py`, `gate_parsers.py`
@@ -461,8 +461,8 @@ EOF
 - [ ] **Step 1: Write failing test that `parse_output` uses registry**
 
 ```python
-from pyaitools.models import CheckDef, SuccessCriteria
-from pyaitools.parsers import parse_output
+from pyossmtool.models import CheckDef, SuccessCriteria
+from pyossmtool.parsers import parse_output
 
 def test_parse_output_ruff_json() -> None:
     check = CheckDef(
@@ -480,9 +480,9 @@ def test_parse_output_ruff_json() -> None:
 - [ ] **Step 2: Rewrite `__init__.py`**
 
 ```python
-from pyaitools.models import CheckDef, Finding
-from pyaitools.parsers.base import REGISTRY
-from pyaitools.parsers import (  # side-effect registration
+from pyossmtool.models import CheckDef, Finding
+from pyossmtool.parsers.base import REGISTRY
+from pyossmtool.parsers import (  # side-effect registration
     analysis,
     format_text,
     gates,
@@ -507,7 +507,7 @@ Avoid unused-import lint by referencing modules in a tuple used for side effects
 - [ ] **Step 3: Update `tests/test_script_gates.py` to use `REGISTRY["gate_json"]` / `script_text` or `parse_output`**
 
 Replace:
-`from pyaitools.parsers.gate_parsers import parse_gate_json, parse_script_text`  
+`from pyossmtool.parsers.gate_parsers import parse_gate_json, parse_script_text`  
 with registry or gates module class methods.
 
 - [ ] **Step 4: Delete old function modules; run full tests**
@@ -520,11 +520,11 @@ Expected: all PASS
 Run:
 
 ```bash
-uv run pyaitools run --check ruff.format --target src/
-uv run pyaitools run --check ruff.lint --target src/
-uv run pyaitools run --check ty.check --target src/
-uv run pyaitools run --check radon.cc --target src/
-uv run pyaitools run --check radon.mi --target src/
+uv run pyossmtool run --check ruff.format --target src/
+uv run pyossmtool run --check ruff.lint --target src/
+uv run pyossmtool run --check ty.check --target src/
+uv run pyossmtool run --check radon.cc --target src/
+uv run pyossmtool run --check radon.mi --target src/
 ```
 
 Expected: all PASS (silent / exit 0)
@@ -532,7 +532,7 @@ Expected: all PASS (silent / exit 0)
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/pyaitools/parsers/ tests/
+git add src/pyossmtool/parsers/ tests/
 git commit -m "$(cat <<'EOF'
 Switch parse_output to the parser registry and remove legacy modules.
 

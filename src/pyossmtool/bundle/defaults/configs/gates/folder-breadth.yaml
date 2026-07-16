@@ -1,0 +1,12 @@
+max_allowed: 12
+scan_roots:
+  - src/
+  - docs/
+  - tests/
+extensions:
+  - .py
+  - .md
+  - .yaml
+  - .sh
+strict: true
+allowlist_file: .pyossmtool/allowlists/folder-breadth.txt

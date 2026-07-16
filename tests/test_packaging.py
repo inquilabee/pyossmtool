@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from pyaitools.registry import BUNDLE_ROOT, Registry
+from pyossmtool.registry import BUNDLE_ROOT, Registry
 
 
 def test_bundle_root_exists_and_loads_catalog() -> None:

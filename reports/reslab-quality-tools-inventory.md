@@ -41,7 +41,7 @@ Sources: `docs/engineering/platform/build-pipeline.md`, `pyproject.toml`, `.pre-
 1. **CI pipeline** — `make pipeline` / `bin/gates/pre-push-pipeline.sh` runs the full enforcing suite.
 1. **Reports directory** — machine-readable JSON/XML + human-readable `.txt` under `reports/`.
 
-## pyaitools prototype status
+## pyossmtool prototype status
 
 Configs created under `tools/` and runnable via `run_tool.py`:
 
@@ -65,7 +65,7 @@ python3 run_tool.py --tool-id ruff-linter --target-path sample_files/
 
 Reports land in `reports/<tool-id>/<timestamp>/raw_output.*`.
 
-## Recommended next steps for pyaitools
+## Recommended next steps for pyossmtool
 
 1. **Mirror reslab's full tool list** — add YAML configs for semgrep, deadcode, pydeps, bandit (done), coverage, mutmut.
 1. **Shared config bundle** — one `quality-suite.yaml` that lists tool IDs, target paths, and thresholds (shareable across repos).

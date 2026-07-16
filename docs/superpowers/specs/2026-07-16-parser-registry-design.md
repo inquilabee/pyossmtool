@@ -65,12 +65,12 @@ kwargs = {"check": check} if parser_cls.needs_check else {}
 return parser_cls().parse(stdout, stderr, **kwargs)
 ```
 
-Import side-effect: loading `pyaitools.parsers` imports concrete modules so `@register` runs.
+Import side-effect: loading `pyossmtool.parsers` imports concrete modules so `@register` runs.
 
 ### Layout
 
 ```text
-src/pyaitools/parsers/
+src/pyossmtool/parsers/
   base.py           # Parser, register, REGISTRY
   patterns.py       # JsonListParser, LineRegexParser, DiffTextParser, PolicyJsonParser, FallbackTextParser
   ruff.py
@@ -88,7 +88,7 @@ Exact module split can group by domain; each concrete class must set `id` matchi
 ### Compatibility
 
 - Catalog YAML: no changes.
-- Public API: keep `from pyaitools.parsers import parse_output`.
+- Public API: keep `from pyossmtool.parsers import parse_output`.
 - Tests: update imports that called private `_parse_*` / module functions; prefer `REGISTRY[id]().parse(...)` or `parse_output`.
 
 ### Non-goals (later)
@@ -102,4 +102,4 @@ Exact module split can group by domain; each concrete class must set `id` matchi
 1. Every current catalog `parser:` id resolves via `REGISTRY`.
 2. Existing pytest suite passes; golden-style tests for at least one pattern base + one concrete parser.
 3. No hand-maintained `_parser_handlers()` dict.
-4. Complexity policy still A-only on `src/pyaitools` for radon.cc / radon.mi.
+4. Complexity policy still A-only on `src/pyossmtool` for radon.cc / radon.mi.

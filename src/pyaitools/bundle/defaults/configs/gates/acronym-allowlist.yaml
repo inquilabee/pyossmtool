@@ -1,4 +1,0 @@
-scan_roots:
-  - docs/
-  - AGENTS.md
-allowlist_file: .pyaitools/allowlists/acronyms.yaml

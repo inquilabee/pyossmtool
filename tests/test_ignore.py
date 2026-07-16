@@ -6,14 +6,14 @@ from pathlib import Path
 
 import yaml
 
-from pyaitools.ignore import (
+from pyossmtool.ignore import (
     EffectiveIgnores,
     filter_findings,
     materialize_for_tool,
     merge_ignore_specs,
     resolve_effective_ignores,
 )
-from pyaitools.models import (
+from pyossmtool.models import (
     CheckDef,
     Finding,
     IgnoreSpec,
@@ -23,7 +23,7 @@ from pyaitools.models import (
     SuiteCheckRef,
     SuiteDef,
 )
-from pyaitools.registry import Registry
+from pyossmtool.registry import Registry
 
 
 def test_merge_ignore_specs_unions_layers() -> None:
@@ -44,7 +44,7 @@ def test_resolve_effective_ignores_reads_profiles(tmp_path: Path) -> None:
         description="demo",
         checks=[],
         ignore_profile=[".gitignore"],
-        ignore_paths=[".pyaitools/"],
+        ignore_paths=[".pyossmtool/"],
     )
     project = ProjectConfig(suite="demo", ignore_paths=["tmp/"])
     check = CheckDef(
@@ -66,7 +66,7 @@ def test_resolve_effective_ignores_reads_profiles(tmp_path: Path) -> None:
     )
 
     assert ignores.is_ignored("build/output.txt")
-    assert ignores.is_ignored(".pyaitools/cache/foo")
+    assert ignores.is_ignored(".pyossmtool/cache/foo")
     assert ignores.is_ignored("tmp/file.txt")
     assert ignores.is_ignored("scratch/note.txt")
     assert not ignores.is_ignored("src/app.py")
@@ -138,7 +138,7 @@ def test_registry_loads_suite_ignore_fields() -> None:
     registry = Registry()
     suite = registry.get_suite("reslab-parity")
     assert ".gitignore" in suite.ignore_profile
-    assert ".pyaitools/" in suite.ignore_paths
+    assert ".pyossmtool/" in suite.ignore_paths
 
 
 def test_tool_ignore_declared_on_catalog() -> None:

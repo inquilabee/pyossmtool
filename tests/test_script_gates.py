@@ -4,14 +4,14 @@ import json
 from pathlib import Path
 
 # Ensure registration
-import pyaitools.parsers  # noqa: F401
-from pyaitools.models import Severity
-from pyaitools.parsers.base import REGISTRY
-from pyaitools.registry import Registry
+import pyossmtool.parsers  # noqa: F401
+from pyossmtool.models import Severity
+from pyossmtool.parsers.base import REGISTRY
+from pyossmtool.registry import Registry
 
 
 def test_registry_loads_project_script_gate(tmp_path: Path) -> None:
-    catalog = tmp_path / ".pyaitools" / "catalog" / "checks"
+    catalog = tmp_path / ".pyossmtool" / "catalog" / "checks"
     catalog.mkdir(parents=True)
     (catalog / "gate.example.yaml").write_text(
         """
@@ -19,7 +19,7 @@ id: gate.example
 tool: script
 name: Example
 description: test gate
-script: .pyaitools/gates/example.sh
+script: .pyossmtool/gates/example.sh
 parser: gate_json
 """.strip()
         + "\n",
@@ -28,7 +28,7 @@ parser: gate_json
     registry = Registry(project_root=tmp_path)
     check = registry.get_check("gate.example")
     assert check.tool == "script"
-    assert check.script == ".pyaitools/gates/example.sh"
+    assert check.script == ".pyossmtool/gates/example.sh"
 
 
 def test_parse_gate_json_findings() -> None:

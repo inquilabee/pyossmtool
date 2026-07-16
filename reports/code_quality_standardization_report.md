@@ -1,10 +1,10 @@
-# pyaitools Architecture
+# pyossmtool Architecture
 
 Quality-gate orchestrator for AI-assisted development. Standardizes tools behind a **Tool → Check → Suite** model with **silent success**, **structured failure reports**, and **layered configuration**.
 
 ## Portable consumer config
 
-Copy [`pyaitools.yaml.example`](../../pyaitools.yaml.example) to your repo as `pyaitools.yaml`:
+Copy [`pyossmtool.yaml.example`](../../pyossmtool.yaml.example) to your repo as `pyossmtool.yaml`:
 
 ```yaml
 suite: standard
@@ -32,7 +32,7 @@ No repo-specific paths ship in the default config. The `demo` suite alone uses `
 | **Tool** | `catalog/tools/` | Installable binary + version pin |
 | **Check** | `catalog/checks/` | Variant gate (`ruff.lint` vs `ruff.format`) |
 | **Suite** | `suites/` | Bundled check lists + default targets |
-| **Consumer** | `pyaitools.yaml` | Suite choice, scan roots, config mode |
+| **Consumer** | `pyossmtool.yaml` | Suite choice, scan roots, config mode |
 
 ## Format checks
 
@@ -50,7 +50,7 @@ Suite `formatting` runs all format-only checks. Suite `standard` is the recommen
 Precedence (per tool):
 
 1. **Repo-native** — `ruff.toml`, `pyproject.toml` `[tool.ruff]`, `[tool.ty]`, etc. (native discovery, no `--config` injected)
-1. **`pyaitools.yaml` `configs.paths`** — when `configs.mode: paths`
+1. **`pyossmtool.yaml` `configs.paths`** — when `configs.mode: paths`
 1. **Bundled defaults** — `defaults/configs/` when repo has no config (`configs.mode: auto` or `bundled`)
 
 | Mode | Behavior |
@@ -80,13 +80,13 @@ Bundled files:
 
 ```bash
 pip install -e .
-pyaitools install --suite standard
-pyaitools run                    # uses pyaitools.yaml
-pyaitools run --suite demo       # dev fixtures only
-pyaitools run --suite formatting
-pyaitools run --suite extended   # includes mutmut + sourcery
-pyaitools list checks
-pyaitools schema
+pyossmtool install --suite standard
+pyossmtool run                    # uses pyossmtool.yaml
+pyossmtool run --suite demo       # dev fixtures only
+pyossmtool run --suite formatting
+pyossmtool run --suite extended   # includes mutmut + sourcery
+pyossmtool list checks
+pyossmtool schema
 ```
 
 ## Catalog summary
@@ -143,8 +143,8 @@ pyaitools schema
 Reslab also runs project-specific gates (`module-size-check`, `folder-breadth-check`, `frontend-check`, etc.). Use **script gates** (see `defaults/gates/README.md`):
 
 ```bash
-pyaitools gate init module-size --description "Cap module line counts"
-# add `- id: gate.module-size` to pyaitools.yaml checks
+pyossmtool gate init module-size --description "Cap module line counts"
+# add `- id: gate.module-size` to pyossmtool.yaml checks
 ```
 
 Wrap existing scripts with `parser: script_text`, or migrate to `gate_fail` / `gate_finish` for structured `FailureReport` JSON.
@@ -157,4 +157,4 @@ Wrap existing scripts with `parser: script_text`, or migrate to `gate_fail` / `g
 1. Failure is structured (`FailureReport` v1)
 1. Hybrid env (`auto` / `managed` / `project`)
 1. Repo configs beat bundled defaults
-1. Portable `pyaitools.yaml` — no sample paths in consumer config
+1. Portable `pyossmtool.yaml` — no sample paths in consumer config

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pyaitools.config_resolver import ConfigResolver
-from pyaitools.models import (
+from pyossmtool.config_resolver import ConfigResolver
+from pyossmtool.models import (
     CheckDef,
     ConfigMode,
     ConfigSpec,
@@ -17,8 +17,8 @@ from pyaitools.models import (
     ToolConfigSpec,
     ToolDef,
 )
-from pyaitools.registry import Registry
-from pyaitools.target_expand import (
+from pyossmtool.registry import Registry
+from pyossmtool.target_expand import (
     expand_include_globs,
     format_check_argv,
     resolve_suite_target,
@@ -37,7 +37,7 @@ def _tool(*, config: ToolConfigSpec | None = None, tool_id: str = "demo") -> Too
 
 
 def _defaults_dir() -> Path:
-    from pyaitools.registry import BUNDLE_ROOT
+    from pyossmtool.registry import BUNDLE_ROOT
 
     return BUNDLE_ROOT / "defaults" / "configs"
 

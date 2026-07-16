@@ -1,5 +1,5 @@
 [project]
-name = "pyaitools"
+name = "pyossmtool"
 version = "0.0.1"
 description = "Quality-gate orchestrator for AI-assisted development"
 readme = "README.md"
@@ -21,7 +21,7 @@ dev = [
 ]
 
 [project.scripts]
-pyaitools = "pyaitools.cli:app"
+pyossmtool = "pyossmtool.cli:app"
 
 [build-system]
 requires = ["setuptools>=68"]
@@ -31,7 +31,7 @@ build-backend = "setuptools.build_meta"
 where = ["src"]
 
 [tool.setuptools.package-data]
-pyaitools = ["py.typed", "bundle/**/*"]
+pyossmtool = ["py.typed", "bundle/**/*"]
 
 [tool.pytest.ini_options]
 minversion = "8.0"

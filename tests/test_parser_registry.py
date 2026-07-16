@@ -3,10 +3,10 @@ from __future__ import annotations
 
 import json
 
-from pyaitools.models import CheckDef, Finding, Severity, SuccessCriteria
-from pyaitools.parsers import parse_output
-from pyaitools.parsers.base import REGISTRY, Parser, register
-from pyaitools.parsers.patterns import JsonListParser
+from pyossmtool.models import CheckDef, Finding, Severity, SuccessCriteria
+from pyossmtool.parsers import parse_output
+from pyossmtool.parsers.base import REGISTRY, Parser, register
+from pyossmtool.parsers.patterns import JsonListParser
 
 REQUIRED_PARSER_IDS = {
     "ruff_json",

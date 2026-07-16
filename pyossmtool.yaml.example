@@ -1,0 +1,48 @@
+# Copy to your consumer repo as pyossmtool.yaml
+suite: standard
+env: auto  # auto | managed | project
+
+# Ignore rules (union-merged with suite defaults and per-check overrides)
+# ignore-profile:
+#   - .gitignore
+#   - .cursorignore
+# ignore-paths:
+#   - build/
+#   - tmp/
+
+# Scan roots — set paths for your repository layout
+targets:
+  python: src/
+  tests: tests/
+  coverage: src/
+  shell: bin/
+  markdown: .
+  yaml: .
+  prose: .
+  repo: .
+  dockerfile: Dockerfile
+
+# Optional per-check overrides (inherit suite checks when empty)
+# checks:
+#   - id: ruff.lint
+#     target: src/
+#   - id: deadcode.scan
+#     ignore-paths:
+#       - "**/generated/**"
+#   - id: gate.module-size
+#     target: .
+
+# Script gates (project-local bash checks)
+# 1. Scaffold:  pyossmtool gate init module-size --description "Cap module line counts"
+# 2. Edit:      .pyossmtool/gates/module-size.sh  (source lib via: pyossmtool gates lib-path)
+# 3. Register:  auto-created at .pyossmtool/catalog/checks/gate.module-size.yaml
+# 4. Enable:    add `- id: gate.module-size` under checks (or use a .pyossmtool/suites/*.yaml)
+
+# Config resolution: repo configs win in auto mode; bundled used as fallback
+configs:
+  mode: auto  # auto | bundled | paths
+  # paths:
+  #   gate.module-size: .pyossmtool/configs/gates/gate.module-size.yaml
+
+# Policy gate overrides (optional) — see defaults/configs/gates/*.yaml
+# .pyossmtool/configs/gates/gate.module-size.yaml
