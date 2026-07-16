@@ -4,12 +4,12 @@ Shell-based policy checks integrated with pyossmtool failure reports.
 
 ## Bundled policy gates
 
-| Check                      | Script                                  | Config                                            |
+| Check | Script | Config |
 | -------------------------- | --------------------------------------- | ------------------------------------------------- |
-| `gate.module-size`         | `defaults/gates/module-size.sh`         | `defaults/configs/gates/module-size.yaml`         |
+| `gate.module-size` | `defaults/gates/module-size.sh` | `defaults/configs/gates/module-size.yaml` |
 | `gate.module-private-vars` | `defaults/gates/module-private-vars.sh` | `defaults/configs/gates/module-private-vars.yaml` |
-| `gate.folder-breadth`      | `defaults/gates/folder-breadth.sh`      | `defaults/configs/gates/folder-breadth.yaml`      |
-| `gate.acronym-allowlist`   | `defaults/gates/acronym-allowlist.sh`   | `defaults/configs/gates/acronym-allowlist.yaml`   |
+| `gate.folder-breadth` | `defaults/gates/folder-breadth.sh` | `defaults/configs/gates/folder-breadth.yaml` |
+| `gate.acronym-allowlist` | `defaults/gates/acronym-allowlist.sh` | `defaults/configs/gates/acronym-allowlist.yaml` |
 
 Run via suite `policy` or as part of `standard`.
 
@@ -83,14 +83,14 @@ Project catalog entries **override** bundled checks with the same id.
 
 ### Environment (set by runner)
 
-| Variable                    | Meaning                                                      |
+| Variable | Meaning |
 | --------------------------- | ------------------------------------------------------------ |
-| `PYOSSMTOOL_ROOT`            | Repository root                                              |
-| `PYOSSMTOOL_TARGET`          | Resolved scan target for this check                          |
-| `PYOSSMTOOL_CHECK_ID`        | Catalog check id                                             |
-| `PYOSSMTOOL_REPORT`          | Path to write structured JSON findings                       |
+| `PYOSSMTOOL_ROOT` | Repository root |
+| `PYOSSMTOOL_TARGET` | Resolved scan target for this check |
+| `PYOSSMTOOL_CHECK_ID` | Catalog check id |
+| `PYOSSMTOOL_REPORT` | Path to write structured JSON findings |
 | `PYOSSMTOOL_IGNORE_PROFILES` | Newline-separated ignore profile files (`.gitignore` syntax) |
-| `PYOSSMTOOL_IGNORE_PATHS`    | Newline-separated repo-relative paths/globs to skip          |
+| `PYOSSMTOOL_IGNORE_PATHS` | Newline-separated repo-relative paths/globs to skip |
 
 Use `gate_path_ignored "<repo-relative-path>"` in bash gates to skip ignored files.
 

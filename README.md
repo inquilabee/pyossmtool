@@ -46,9 +46,9 @@ On failure, pyossmtool exits non-zero and writes a JSON failure report under `re
 ## Adding a tool
 
 1. Add `src/pyossmtool/bundle/catalog/tools/<id>.yaml` (install method, binary, `files:`).
-2. Add one or more checks under `catalog/checks/` with `mode: check` or `mode: format`.
-3. Optionally add a parser class under `pyossmtool.parsers` and register it.
-4. Reference the check ids from a suite YAML.
+1. Add one or more checks under `catalog/checks/` with `mode: check` or `mode: format`.
+1. Optionally add a parser class under `pyossmtool.parsers` and register it.
+1. Reference the check ids from a suite YAML.
 
 Project-local script gates: `pyossmtool gate init <name>`.
 

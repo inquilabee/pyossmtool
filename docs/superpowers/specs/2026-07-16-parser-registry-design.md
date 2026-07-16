@@ -1,8 +1,8 @@
 # Parser class registry and shared patterns
 
-**Date:** 2026-07-16  
-**Status:** Approved for planning  
-**Goals:** (1) registry / discoverability, (2) shared parsing patterns  
+**Date:** 2026-07-16\
+**Status:** Approved for planning\
+**Goals:** (1) registry / discoverability, (2) shared parsing patterns\
 **Out of scope:** runtime finding-invariant validation, catalog `parser:` id renames
 
 ## Problem
@@ -100,6 +100,6 @@ Exact module split can group by domain; each concrete class must set `id` matchi
 ## Success criteria
 
 1. Every current catalog `parser:` id resolves via `REGISTRY`.
-2. Existing pytest suite passes; golden-style tests for at least one pattern base + one concrete parser.
-3. No hand-maintained `_parser_handlers()` dict.
-4. Complexity policy still A-only on `src/pyossmtool` for radon.cc / radon.mi.
+1. Existing pytest suite passes; golden-style tests for at least one pattern base + one concrete parser.
+1. No hand-maintained `_parser_handlers()` dict.
+1. Complexity policy still A-only on `src/pyossmtool` for radon.cc / radon.mi.

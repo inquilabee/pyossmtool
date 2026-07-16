@@ -1,7 +1,7 @@
 # pyossmtool 0.0.1 Design
 
-**Date:** 2026-07-16  
-**Status:** Approved for implementation  
+**Date:** 2026-07-16\
+**Status:** Approved for implementation\
 **Goal:** Publish `pyossmtool==0.0.1` to public PyPI with a working wheel, full catalog, and a stable public CLI.
 
 ## Product identity

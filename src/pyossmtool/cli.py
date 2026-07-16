@@ -144,12 +144,16 @@ def _execute(
         typer.echo("SETUP provide --suite or create pyossmtool.yaml", err=True)
         return 2
 
-    suite_result = runner.run_suite(
-        suite_id,
-        project_config=project_config,
-        fail_fast=fail_fast,
-        mode=mode,
-    )
+    try:
+        suite_result = runner.run_suite(
+            suite_id,
+            project_config=project_config,
+            fail_fast=fail_fast,
+            mode=mode,
+        )
+    except KeyError as exc:
+        typer.echo(f"SETUP {exc}", err=True)
+        return 2
     return _emit_suite_result(suite_result)
 
 

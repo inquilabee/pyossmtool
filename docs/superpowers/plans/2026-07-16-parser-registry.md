@@ -36,18 +36,21 @@
 | `tests/test_parser_registry.py` | Registry + pattern + parse_output smoke tests |
 | `tests/test_script_gates.py` | Point at gate parser classes / `parse_output` |
 
----
+______________________________________________________________________
 
 ### Task 1: Base registry and pattern scaffolding
 
 **Files:**
+
 - Create: `src/pyossmtool/parsers/base.py`
 - Create: `src/pyossmtool/parsers/patterns.py`
 - Create: `tests/test_parser_registry.py`
 - Modify: (none yet for production callers)
 
 **Interfaces:**
+
 - Consumes: `CheckDef`, `Finding` from `pyossmtool.models`
+
 - Produces: `Parser`, `register`, `REGISTRY`, `JsonListParser`, `LineRegexParser`, `DiffTextParser`, `PolicyJsonParser`, `FallbackTextParser`
 
 - [ ] **Step 1: Write failing registry tests**
@@ -95,7 +98,7 @@ def test_json_list_parser_maps_items() -> None:
 
 - [ ] **Step 2: Run tests — expect fail (modules missing)**
 
-Run: `uv run pytest tests/test_parser_registry.py -v`  
+Run: `uv run pytest tests/test_parser_registry.py -v`\
 Expected: FAIL with import error for `pyossmtool.parsers.base` / `patterns`
 
 - [ ] **Step 3: Implement `base.py`**
@@ -221,7 +224,7 @@ class FallbackTextParser(Parser):
 
 - [ ] **Step 5: Run tests — expect pass**
 
-Run: `uv run pytest tests/test_parser_registry.py -v`  
+Run: `uv run pytest tests/test_parser_registry.py -v`\
 Expected: PASS
 
 - [ ] **Step 6: Commit**
@@ -235,11 +238,12 @@ EOF
 )"
 ```
 
----
+______________________________________________________________________
 
 ### Task 2: Migrate JSON-list parsers (shellcheck, bandit, ruff json)
 
 **Files:**
+
 - Create: `src/pyossmtool/parsers/shell.py`
 - Create: `src/pyossmtool/parsers/ruff.py`
 - Create: `src/pyossmtool/parsers/analysis.py` (start with bandit)
@@ -247,7 +251,9 @@ EOF
 - Reference behavior: current `format_parsers.parse_shellcheck`, `python_parsers.parse_ruff_json`, `analysis_parsers.parse_bandit`
 
 **Interfaces:**
+
 - Consumes: `JsonListParser`, `register`, helpers from `common`
+
 - Produces: registered ids `shellcheck_json`, `ruff_json`, `bandit_json`
 
 - [ ] **Step 1: Write failing tests for registered ids**
@@ -268,7 +274,7 @@ def test_shellcheck_parser_registered_and_parses() -> None:
 
 - [ ] **Step 2: Run test — expect fail (not registered)**
 
-Run: `uv run pytest tests/test_parser_registry.py::test_shellcheck_parser_registered_and_parses -v`  
+Run: `uv run pytest tests/test_parser_registry.py::test_shellcheck_parser_registered_and_parses -v`\
 Expected: FAIL KeyError or import error
 
 - [ ] **Step 3: Implement `ShellcheckParser` and `RuffJsonParser` / `BanditParser` by moving logic from existing functions into `parse_one`**
@@ -301,7 +307,7 @@ Same for ruff JSON and bandit using existing `_ruff_json_finding` / bandit loop 
 
 - [ ] **Step 4: Run focused tests — expect pass**
 
-Run: `uv run pytest tests/test_parser_registry.py -v`  
+Run: `uv run pytest tests/test_parser_registry.py -v`\
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -315,17 +321,20 @@ EOF
 )"
 ```
 
----
+______________________________________________________________________
 
 ### Task 3: Migrate line-regex and policy parsers
 
 **Files:**
+
 - Modify: `src/pyossmtool/parsers/analysis.py`
 - Modify: `src/pyossmtool/parsers/prose.py` (create)
 - Modify: `src/pyossmtool/parsers/patterns.py` (complete `LineRegexParser` summary hooks if needed; implement `PolicyJsonParser.parse` skeleton used by radon)
 
 **Interfaces:**
+
 - Consumes: `LineRegexParser`, `PolicyJsonParser`, `RANK_ORDER` from `common`
+
 - Produces: ids `ty_concise`, `codespell_text`, `yamllint_text`, `deadcode_text`, `vulture_text`, `radon_cc_json`, `radon_mi_json`, `jscpd_json`
 
 - [ ] **Step 1: Add failing test for ty line parser**
@@ -344,7 +353,7 @@ def test_ty_parser_parses_concise_line() -> None:
 
 - [ ] **Step 2: Run — expect fail**
 
-Run: `uv run pytest tests/test_parser_registry.py::test_ty_parser_parses_concise_line -v`  
+Run: `uv run pytest tests/test_parser_registry.py::test_ty_parser_parses_concise_line -v`\
 Expected: FAIL
 
 - [ ] **Step 3: Port ty, codespell, yamllint, deadcode, vulture onto `LineRegexParser` (or subclass with extra fallback like current `parse_ty` / `parse_deadcode`)**
@@ -372,7 +381,7 @@ Move existing radon/jscpd logic into `parse_payload`.
 
 - [ ] **Step 5: Run tests**
 
-Run: `uv run pytest tests/test_parser_registry.py tests/test_script_gates.py -v`  
+Run: `uv run pytest tests/test_parser_registry.py tests/test_script_gates.py -v`\
 Expected: PASS (script gates still on old modules until Task 5)
 
 - [ ] **Step 6: Commit**
@@ -386,11 +395,12 @@ EOF
 )"
 ```
 
----
+______________________________________________________________________
 
 ### Task 4: Migrate diff / fallback / remaining text parsers
 
 **Files:**
+
 - Modify: `src/pyossmtool/parsers/ruff.py` (`ruff_format_text`)
 - Modify: `src/pyossmtool/parsers/shell.py` (`shfmt_diff`)
 - Create: `src/pyossmtool/parsers/format_text.py` (`mdformat_text`, `yamlfmt_text`)
@@ -399,7 +409,9 @@ EOF
 - Create: `src/pyossmtool/parsers/gates.py`
 
 **Interfaces:**
+
 - Consumes: `DiffTextParser` / `FallbackTextParser` / custom `parse()` where patterns do not fit
+
 - Produces: all remaining catalog parser ids
 
 - [ ] **Step 1: List required ids and assert coverage test**
@@ -430,7 +442,7 @@ Priority order: ruff format, shfmt, mdformat, yamlfmt, semgrep, pydeps, pytest, 
 
 - [ ] **Step 3: Run unit tests for any new cases added**
 
-Run: `uv run pytest tests/test_parser_registry.py -v`  
+Run: `uv run pytest tests/test_parser_registry.py -v`\
 Expected: PASS
 
 - [ ] **Step 4: Commit**
@@ -444,18 +456,21 @@ EOF
 )"
 ```
 
----
+______________________________________________________________________
 
 ### Task 5: Switch `parse_output` to registry; delete old modules
 
 **Files:**
+
 - Modify: `src/pyossmtool/parsers/__init__.py`
 - Modify: `tests/test_script_gates.py`
 - Modify: `tests/test_parser_registry.py` (enable full id coverage + `parse_output` smoke)
 - Delete: `python_parsers.py`, `analysis_parsers.py`, `format_parsers.py`, `prose_parsers.py`, `gate_parsers.py`
 
 **Interfaces:**
+
 - Consumes: `REGISTRY`, all concrete modules
+
 - Produces: `parse_output(check, stdout, stderr) -> list[Finding]` identical caller contract
 
 - [ ] **Step 1: Write failing test that `parse_output` uses registry**
@@ -507,12 +522,12 @@ Avoid unused-import lint by referencing modules in a tuple used for side effects
 - [ ] **Step 3: Update `tests/test_script_gates.py` to use `REGISTRY["gate_json"]` / `script_text` or `parse_output`**
 
 Replace:
-`from pyossmtool.parsers.gate_parsers import parse_gate_json, parse_script_text`  
+`from pyossmtool.parsers.gate_parsers import parse_gate_json, parse_script_text`\
 with registry or gates module class methods.
 
 - [ ] **Step 4: Delete old function modules; run full tests**
 
-Run: `uv run pytest tests/ -q`  
+Run: `uv run pytest tests/ -q`\
 Expected: all PASS
 
 - [ ] **Step 5: Run self-dogfood checks**
@@ -540,16 +555,17 @@ EOF
 )"
 ```
 
----
+______________________________________________________________________
 
 ### Task 6: Docs touch-up (optional short note)
 
 **Files:**
+
 - Modify: `AGENTS.md` or existing README only if it documents parsers — skip if none mention the old function layout
 
 - [ ] **Step 1: Grep docs for `parse_ruff` / `parsers.py` references**
 
-Run: `rg -n "parse_ruff|_parser_handlers|parsers\\.py" -g '!docs/superpowers/**' .`  
+Run: `rg -n "parse_ruff|_parser_handlers|parsers\\.py" -g '!docs/superpowers/**' .`\
 If none, skip commit.
 
 - [ ] **Step 2: If references exist, update to describe registry + `Parser.id`**
@@ -565,7 +581,7 @@ EOF
 )"
 ```
 
----
+______________________________________________________________________
 
 ## Spec coverage self-review
 

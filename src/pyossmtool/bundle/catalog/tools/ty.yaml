@@ -7,20 +7,14 @@ install:
 binary: ty
 documentation_url: https://docs.astral.sh/ty/
 config:
-  flag: --config
+  flag: --config-file
   bundled: ty.toml
   pyproject:
-  - tool
-  - ty
+    - tool
+    - ty
 ignore:
-  kind: config_overlay
-  format: toml
-  file: ty.toml
-  flag: --config
-  key: exclude
-  extend_from: pyproject
-  extend_key: extends
-  toml_table: tool.ty
+  kind: flag_pairs
+  flag: --exclude
   post_subcommand: true
 files:
-- '**/*.py'
+  - "**/*.py"

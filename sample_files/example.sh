@@ -3,8 +3,7 @@
 
 unused_var="hello"
 
-if [ "$1" = "test" ]
-then
-  echo $unused_var
-  rm -rf $1/*
+if [ "$1" = "test" ]; then
+	echo $unused_var
+	rm -rf $1/*
 fi

@@ -147,9 +147,12 @@ def test_resolve_target_uses_suite_when_not_project_suite() -> None:
 
 def test_catalog_tools_load_with_config() -> None:
     registry = Registry()
-    assert registry.get_tool("yamlfmt").config is not None
-    assert registry.get_tool("yamlfmt").config.flag == "-conf"
-    assert registry.get_tool("ruff").config.pyproject == ["tool", "ruff"]
+    yamlfmt_config = registry.get_tool("yamlfmt").config
+    assert yamlfmt_config is not None
+    assert yamlfmt_config.flag == "-conf"
+    ruff_config = registry.get_tool("ruff").config
+    assert ruff_config is not None
+    assert ruff_config.pyproject == ["tool", "ruff"]
     assert registry.get_tool("shellcheck").files
     assert registry.get_tool("ruff").files == ["**/*.py"]
     assert "target_key" not in CheckDef.model_fields
