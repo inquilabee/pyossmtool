@@ -10,9 +10,9 @@ config:
   flag: -conf
   bundled: yamlfmt.yaml
   repo_files:
-    - .yamlfmt.yaml
-    - .yamlfmt.yml
-    - yamlfmt.yaml
+  - .yamlfmt.yaml
+  - .yamlfmt.yml
+  - yamlfmt.yaml
 ignore:
   kind: config_overlay
   format: yaml
@@ -20,3 +20,5 @@ ignore:
   flag: -conf
   key: exclude
   key_style: list
+files:
+- '**/*.{yml,yaml}'

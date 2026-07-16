@@ -8,4 +8,6 @@ binary: shfmt
 documentation_url: https://github.com/mvdan/sh
 config:
   repo_files:
-    - .editorconfig
+  - .editorconfig
+files:
+- '**/*.{sh,bash,ksh,zsh}'

@@ -8,4 +8,6 @@ binary: mdformat
 documentation_url: https://github.com/executablebooks/mdformat
 config:
   repo_files:
-    - .mdformat.toml
+  - .mdformat.toml
+files:
+- '**/*.{md,markdown}'

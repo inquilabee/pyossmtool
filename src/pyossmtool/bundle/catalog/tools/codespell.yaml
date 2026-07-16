@@ -7,8 +7,11 @@ install:
 binary: codespell
 documentation_url: https://github.com/codespell-project/codespell
 config:
-  pyproject: [tool, codespell]
+  pyproject:
+  - tool
+  - codespell
 ignore:
   kind: skip_file
   flag: --skip
   file: codespell.skip
+files: []

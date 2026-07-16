@@ -91,6 +91,7 @@ class ToolDef(BaseModel):
     install: InstallSpec
     binary: str
     documentation_url: str | None = None
+    files: list[str] = Field(default_factory=list)
     config: ToolConfigSpec | None = None
     ignore: ToolIgnoreSpec | None = None
 

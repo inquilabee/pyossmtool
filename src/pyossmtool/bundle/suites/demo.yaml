@@ -4,11 +4,11 @@ description: Internal demo suite for sample_files fixtures (development only).
 env: auto
 target: sample_files/
 checks:
-  - id: ruff.lint
-  - id: ruff.format
-  - id: ty.check
-  - id: shellcheck
-  - id: bandit.scan
-  - id: radon.cc
-  - id: jscpd.duplication
-  - id: gate.demo-line-limit
+- id: ruff.lint
+- id: ruff.format
+- id: ty.check
+- id: shellcheck
+- id: bandit.scan
+- id: radon.cc
+- id: jscpd.duplication
+- id: gate.demo-line-limit

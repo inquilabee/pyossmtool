@@ -1,35 +1,34 @@
 id: extended
 name: Extended Quality Suite
-description:
-  Standard suite plus slow or optional checks (mutation testing, sourcery
+description: Standard suite plus slow or optional checks (mutation testing, sourcery
   review).
 env: auto
 target: .
 checks:
-  - id: ruff.format
-  - id: ruff.lint
-  - id: ruff.unused
-  - id: ty.check
-  - id: bandit.scan
-  - id: gitleaks.secrets
-  - id: semgrep.scan
-  - id: deadcode.scan
-  - id: vulture.scan
-  - id: pydeps.cycles
-  - id: radon.cc
-  - id: radon.mi
-  - id: jscpd.duplication
-  - id: shfmt.format
-  - id: shellcheck
-  - id: mdformat.format
-  - id: markdownlint.check
-  - id: yamlfmt.format
-  - id: yamllint.check
-  - id: codespell.spelling
-  - id: pytest.test
-    target: tests/
-  - id: pytest.coverage
-    target: tests/
-  - id: hadolint.dockerfile
-  - id: mutmut.run
-  - id: sourcery.review
+- id: ruff.format
+- id: ruff.lint
+- id: ruff.unused
+- id: ty.check
+- id: bandit.scan
+- id: gitleaks.secrets
+- id: semgrep.scan
+- id: deadcode.scan
+- id: vulture.scan
+- id: pydeps.cycles
+- id: radon.cc
+- id: radon.mi
+- id: jscpd.duplication
+- id: shfmt.format
+- id: shellcheck
+- id: mdformat.format
+- id: markdownlint.check
+- id: yamlfmt.format
+- id: yamllint.check
+- id: codespell.spelling
+- id: pytest.test
+  target: tests/
+- id: pytest.coverage
+  target: tests/
+- id: hadolint.dockerfile
+- id: mutmut.run
+- id: sourcery.review

@@ -6,3 +6,5 @@ install:
   package: radon>=6.0.0
 binary: radon
 documentation_url: https://radon.readthedocs.io/
+files:
+- '**/*.py'

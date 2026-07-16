@@ -9,3 +9,5 @@ documentation_url: https://github.com/jendrikseipp/vulture
 ignore:
   kind: prefix
   prefix: --exclude=
+files:
+- '**/*.py'

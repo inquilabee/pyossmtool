@@ -2,15 +2,15 @@ id: yamllint.check
 tool: yamllint
 name: Yamllint
 description: Lint YAML files for syntax and style issues.
-include:
-  - "**/*.{yml,yaml}"
 argv:
-  - -f
-  - parsable
-  - "{target}"
+- -f
+- parsable
+- '{target}'
 parser: yamllint_text
 success:
-  exit_codes: [0, 1]
+  exit_codes:
+  - 0
+  - 1
 remediation:
   suggested_commands:
-    - yamllint {target}
+  - yamllint {target}

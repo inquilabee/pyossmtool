@@ -11,9 +11,11 @@ config:
   bundled_path: defaults/semgrep/python-quality.yml
   pass_flag: false
   repo_dirs:
-    - .semgrep
-    - .tools/semgrep
+  - .semgrep
+  - .tools/semgrep
 ignore:
   kind: flag_pairs
   flag: --exclude
   post_subcommand: true
+files:
+- '**/*.py'

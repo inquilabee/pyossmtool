@@ -6,3 +6,5 @@ install:
   package: shellcheck
 binary: shellcheck
 documentation_url: https://www.shellcheck.net/
+files:
+- '**/*.{sh,bash,ksh,zsh}'

@@ -22,21 +22,6 @@ def resolve_suite_target(
     return suite.target or "."
 
 
-def argv_targets_for_check(
-    *,
-    project_root: Path,
-    check: CheckDef,
-    target: str,
-) -> list[str] | None:
-    if not check.include:
-        return [target]
-    root = (project_root / target).resolve()
-    matches = expand_include_globs(root, check.include)
-    if not matches:
-        return None
-    return [str(Path(target) / rel) for rel in matches]
-
-
 def expand_include_globs(root: Path, patterns: list[str]) -> list[str]:
     """Return sorted relative paths matching include patterns under root."""
     if not patterns:

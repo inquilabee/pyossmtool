@@ -1,12 +1,11 @@
 id: policy
 name: Policy Gates
-description:
-  Structural policy checks (module size, private vars, folder breadth,
+description: Structural policy checks (module size, private vars, folder breadth,
   acronyms).
 env: auto
 target: .
 checks:
-  - id: gate.module-size
-  - id: gate.module-private-vars
-  - id: gate.folder-breadth
-  - id: gate.acronym-allowlist
+- id: gate.module-size
+- id: gate.module-private-vars
+- id: gate.folder-breadth
+- id: gate.acronym-allowlist

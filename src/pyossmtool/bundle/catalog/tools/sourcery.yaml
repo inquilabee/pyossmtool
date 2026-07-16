@@ -6,3 +6,5 @@ install:
   package: sourcery>=1.0.0
 binary: sourcery
 documentation_url: https://sourcery.ai/
+files:
+- '**/*.py'

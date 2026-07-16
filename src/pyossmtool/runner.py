@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from pyossmtool.config_resolver import ConfigResolver
+from pyossmtool.discovery import argv_targets_for_check
 from pyossmtool.gates import default_report_path
 from pyossmtool.ignore import (
     EffectiveIgnores,
@@ -37,7 +38,6 @@ from pyossmtool.reporter import Reporter
 from pyossmtool.resolver import BinaryResolver
 from pyossmtool.runner_script import build_script_argv
 from pyossmtool.target_expand import (
-    argv_targets_for_check,
     build_tool_argv,
     coverage_target,
     resolve_suite_target,
@@ -94,14 +94,9 @@ class Runner:
         results: list[CheckResult] = []
         for check_ref in check_refs:
             target = self._resolve_target(check_ref, suite, project_config)
-            argv_targets = self._argv_targets(check_ref.id, target)
-            if argv_targets is None:
-                results.append(CheckResult(check_id=check_ref.id, passed=True))
-                continue
             result = self.run_check(
                 check_ref.id,
                 target=target,
-                argv_targets=argv_targets,
                 suite_id=suite_id,
                 env_mode=env_mode,
                 project_config=project_config,
@@ -130,10 +125,6 @@ class Runner:
         started_at = utc_now()
         start = time.perf_counter()
         suite, check_ref = self._resolve_suite_context(check_id, suite_id, suite, check_ref, project_config)
-        if argv_targets is None:
-            argv_targets = self._argv_targets(check_id, target)
-            if argv_targets is None:
-                return CheckResult(check_id=check_id, passed=True)
         effective_ignores = resolve_effective_ignores(
             self.project_root,
             suite=suite,
@@ -142,6 +133,10 @@ class Runner:
             check=check,
             bundled_patterns=bundled_tool_ignore_patterns(tool.id),
         )
+        if argv_targets is None:
+            argv_targets = self._argv_targets(check_id, target, effective_ignores)
+            if argv_targets is None:
+                return CheckResult(check_id=check_id, passed=True)
         launch = self._safe_prepare_launch(
             check,
             check_id,
@@ -450,9 +445,21 @@ class Runner:
     ) -> str:
         return resolve_suite_target(check_ref, suite, project_config)
 
-    def _argv_targets(self, check_id: str, target: str) -> list[str] | None:
+    def _argv_targets(
+        self,
+        check_id: str,
+        target: str,
+        effective_ignores: EffectiveIgnores,
+    ) -> list[str] | None:
         check = self.registry.get_check(check_id)
-        return argv_targets_for_check(project_root=self.project_root, check=check, target=target)
+        tool = self.registry.get_tool(check.tool)
+        return argv_targets_for_check(
+            project_root=self.project_root,
+            check=check,
+            tool=tool,
+            target=target,
+            ignores=effective_ignores,
+        )
 
 
 def _exit_code_finding(returncode: int, stderr: str, stdout: str) -> Finding:

@@ -12,3 +12,4 @@ ignore:
   file: jscpd.json
   flag: --config
   key: ignore
+files: []

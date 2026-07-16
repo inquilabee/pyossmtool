@@ -6,3 +6,4 @@ install:
   package: gitleaks
 binary: gitleaks
 documentation_url: https://github.com/gitleaks/gitleaks
+files: []

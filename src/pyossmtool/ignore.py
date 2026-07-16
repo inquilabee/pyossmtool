@@ -75,7 +75,7 @@ def resolve_effective_ignores(
     bundled_patterns: list[str] | None = None,
 ) -> EffectiveIgnores:
     merged = merge_ignore_specs(
-        IgnoreSpec(ignore_paths=bundled_patterns or []),
+        IgnoreSpec(ignore_profile=[".gitignore"], ignore_paths=bundled_patterns or []),
         _ignore_spec_from(suite),
         _ignore_spec_from(project_config),
         _ignore_spec_from(check),

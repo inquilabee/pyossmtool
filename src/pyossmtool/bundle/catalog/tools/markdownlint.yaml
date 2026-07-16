@@ -11,6 +11,8 @@ config:
   bundled: markdownlint.json
   pass_flag: false
   repo_files:
-    - .markdownlint.json
-    - .markdownlint.yaml
-    - .markdownlint.yml
+  - .markdownlint.json
+  - .markdownlint.yaml
+  - .markdownlint.yml
+files:
+- '**/*.{md,markdown}'

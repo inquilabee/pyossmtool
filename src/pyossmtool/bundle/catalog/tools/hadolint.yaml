@@ -6,3 +6,6 @@ install:
   package: hadolint
 binary: hadolint
 documentation_url: https://github.com/hadolint/hadolint
+files:
+- '**/Dockerfile'
+- '**/*.Dockerfile'

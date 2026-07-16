@@ -150,6 +150,6 @@ def test_catalog_tools_load_with_config() -> None:
     assert registry.get_tool("yamlfmt").config is not None
     assert registry.get_tool("yamlfmt").config.flag == "-conf"
     assert registry.get_tool("ruff").config.pyproject == ["tool", "ruff"]
-    check = registry.get_check("shellcheck")
-    assert check.include
+    assert registry.get_tool("shellcheck").files
+    assert registry.get_tool("ruff").files == ["**/*.py"]
     assert "target_key" not in CheckDef.model_fields

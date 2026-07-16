@@ -10,8 +10,10 @@ config:
   flag: --config
   bundled: ruff.toml
   repo_files:
-    - ruff.toml
-  pyproject: [tool, ruff]
+  - ruff.toml
+  pyproject:
+  - tool
+  - ruff
 ignore:
   kind: config_overlay
   format: toml
@@ -20,3 +22,5 @@ ignore:
   key: extend-exclude
   extend_from: base_or_pyproject
   extend_key: extend
+files:
+- '**/*.py'

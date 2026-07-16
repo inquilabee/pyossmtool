@@ -9,8 +9,12 @@ documentation_url: https://bandit.readthedocs.io/
 config:
   flag: -c
   bundled: bandit.yaml
-  pyproject: [tool, bandit]
+  pyproject:
+  - tool
+  - bandit
   use_pyproject_as_path: true
 ignore:
   kind: flag_pairs
   flag: -x
+files:
+- '**/*.py'

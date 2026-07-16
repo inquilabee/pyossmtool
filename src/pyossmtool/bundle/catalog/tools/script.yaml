@@ -5,3 +5,4 @@ install:
   method: skip
 binary: bash
 documentation_url: https://github.com/dayhatt/pyossmtool#script-gates
+files: []

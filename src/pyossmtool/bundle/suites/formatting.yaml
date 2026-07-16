@@ -4,7 +4,7 @@ description: All format-only checks across Python, shell, Markdown, and YAML.
 env: auto
 target: .
 checks:
-  - id: ruff.format
-  - id: shfmt.format
-  - id: mdformat.format
-  - id: yamlfmt.format
+- id: ruff.format
+- id: shfmt.format
+- id: mdformat.format
+- id: yamlfmt.format

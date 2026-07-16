@@ -1,5 +1,5 @@
 suite: python-quality
 env: auto
-target: src/
+target: .
 configs:
   mode: auto

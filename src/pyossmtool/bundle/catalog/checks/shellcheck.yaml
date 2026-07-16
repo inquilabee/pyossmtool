@@ -2,12 +2,12 @@ id: shellcheck
 tool: shellcheck
 name: ShellCheck
 description: Lint shell scripts and output JSON diagnostics.
-include:
-  - "**/*.{sh,bash,ksh,zsh}"
 argv:
-  - -f
-  - json
-  - "{target}"
+- -f
+- json
+- '{target}'
 parser: shellcheck_json
 success:
-  exit_codes: [0, 1]
+  exit_codes:
+  - 0
+  - 1

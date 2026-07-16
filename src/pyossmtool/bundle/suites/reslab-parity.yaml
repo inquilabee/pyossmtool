@@ -1,42 +1,41 @@
 id: reslab-parity
 name: ResLab Parity Reference
-description:
-  "Alias for the standard suite \u2014 full reslab-equivalent CLI tool\
+description: "Alias for the standard suite \u2014 full reslab-equivalent CLI tool\
   \ coverage."
 env: auto
 target: .
 ignore-profile:
-  - .gitignore
-  - .cursorignore
+- .gitignore
+- .cursorignore
 ignore-paths:
-  - .pyossmtool/
-  - venv/
-  - .venv/
-  - reports/
-  - sample_files/
+- .pyossmtool/
+- venv/
+- .venv/
+- reports/
+- sample_files/
 checks:
-  - id: ruff.format
-  - id: ruff.lint
-  - id: ruff.unused
-  - id: ty.check
-  - id: shfmt.format
-  - id: shellcheck
-  - id: bandit.scan
-  - id: gitleaks.secrets
-  - id: semgrep.scan
-  - id: deadcode.scan
-  - id: vulture.scan
-  - id: pydeps.cycles
-  - id: radon.cc
-  - id: radon.mi
-  - id: jscpd.duplication
-  - id: mdformat.format
-  - id: markdownlint.check
-  - id: yamlfmt.format
-  - id: yamllint.check
-  - id: codespell.spelling
-  - id: pytest.test
-    target: tests/
-  - id: pytest.coverage
-    target: tests/
-  - id: hadolint.dockerfile
+- id: ruff.format
+- id: ruff.lint
+- id: ruff.unused
+- id: ty.check
+- id: shfmt.format
+- id: shellcheck
+- id: bandit.scan
+- id: gitleaks.secrets
+- id: semgrep.scan
+- id: deadcode.scan
+- id: vulture.scan
+- id: pydeps.cycles
+- id: radon.cc
+- id: radon.mi
+- id: jscpd.duplication
+- id: mdformat.format
+- id: markdownlint.check
+- id: yamlfmt.format
+- id: yamllint.check
+- id: codespell.spelling
+- id: pytest.test
+  target: tests/
+- id: pytest.coverage
+  target: tests/
+- id: hadolint.dockerfile

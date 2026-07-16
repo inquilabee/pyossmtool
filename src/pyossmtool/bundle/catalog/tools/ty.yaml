@@ -9,7 +9,9 @@ documentation_url: https://docs.astral.sh/ty/
 config:
   flag: --config
   bundled: ty.toml
-  pyproject: [tool, ty]
+  pyproject:
+  - tool
+  - ty
 ignore:
   kind: config_overlay
   format: toml
@@ -20,3 +22,5 @@ ignore:
   extend_key: extends
   toml_table: tool.ty
   post_subcommand: true
+files:
+- '**/*.py'

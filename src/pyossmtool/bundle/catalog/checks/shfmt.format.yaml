@@ -2,14 +2,13 @@ id: shfmt.format
 tool: shfmt
 name: shfmt Format Check
 description: Verify shell script formatting via diff mode.
-include:
-  - "**/*.{sh,bash,ksh,zsh}"
 argv:
-  - -d
-  - "{target}"
+- -d
+- '{target}'
 parser: shfmt_diff
 success:
-  exit_codes: [0]
+  exit_codes:
+  - 0
 remediation:
   suggested_commands:
-    - shfmt -w {target}
+  - shfmt -w {target}

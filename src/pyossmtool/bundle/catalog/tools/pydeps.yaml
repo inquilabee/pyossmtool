@@ -6,3 +6,5 @@ install:
   package: pydeps>=3.0
 binary: pydeps
 documentation_url: https://github.com/thebjorn/pydeps
+files:
+- '**/*.py'

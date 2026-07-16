@@ -9,3 +9,4 @@ documentation_url: https://docs.pytest.org/
 ignore:
   kind: flag_pairs
   flag: --ignore
+files: []
