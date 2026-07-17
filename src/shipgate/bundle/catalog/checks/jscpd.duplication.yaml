@@ -1,0 +1,19 @@
+id: jscpd.duplication
+tool: jscpd
+name: JSCPD Duplication Scan
+description: Detect duplicated code blocks above threshold.
+argv:
+  - "{target}"
+  - --reporters
+  - json
+  - --silent
+  - --min-lines
+  - "3"
+  - --min-tokens
+  - "20"
+parser: jscpd_json
+success:
+  exit_codes: [0]
+policy:
+  max_duplication_percent: 50
+output_file: report/jscpd-report.json

@@ -1,0 +1,20 @@
+id: ty
+name: ty
+description: Astral static type checker for Python.
+install:
+  method: pip
+  package: ty>=0.0.50
+binary: ty
+documentation_url: https://docs.astral.sh/ty/
+config:
+  flag: --config-file
+  bundled: ty.toml
+  pyproject:
+    - tool
+    - ty
+ignore:
+  kind: flag_pairs
+  flag: --exclude
+  post_subcommand: true
+files:
+  - "**/*.py"

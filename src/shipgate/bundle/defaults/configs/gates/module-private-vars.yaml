@@ -1,0 +1,4 @@
+scan_roots:
+  - src/
+base_branch: main
+allowlist_file: .shipgate/allowlists/module-private-vars.txt

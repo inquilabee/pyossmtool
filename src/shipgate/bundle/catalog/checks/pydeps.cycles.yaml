@@ -1,0 +1,14 @@
+id: pydeps.cycles
+tool: pydeps
+name: Pydeps Import Cycles
+description: Fail when Python import cycles are detected.
+argv:
+  - "{target}"
+  - --show-cycles
+  - --no-show
+parser: pydeps_cycles_text
+success:
+  exit_codes: [0, 1, 2]
+remediation:
+  suggested_commands:
+    - pydeps {target} --show-cycles --no-show

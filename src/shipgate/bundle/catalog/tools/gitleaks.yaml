@@ -1,0 +1,13 @@
+id: gitleaks
+name: Gitleaks
+description: Secret scanning for git repositories.
+install:
+  method: system
+  package: gitleaks
+binary: gitleaks
+documentation_url: https://github.com/gitleaks/gitleaks
+config:
+  repo_files:
+    - .gitleaks.toml
+    - gitleaks.toml
+files: []

@@ -1,0 +1,15 @@
+id: radon.cc
+tool: radon
+name: Radon Cyclomatic Complexity
+description: Fail when function complexity rank exceeds policy.
+include:
+  - src/pyossmtool/**/*.py
+argv:
+  - cc
+  - "{target}"
+  - -j
+parser: radon_cc_json
+success:
+  exit_codes: [0]
+policy:
+  max_complexity_rank: A

@@ -1,0 +1,142 @@
+[project]
+name = "shipgate"
+version = "0.1.0"
+description = "Quality-gate orchestrator for AI-assisted development"
+readme = "README.md"
+requires-python = ">=3.11,<3.15"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+  { name = "Vishal Kumar Mishra", email = "vishal.k.mishra2@gmail.com" },
+]
+keywords = [
+  "shipgate",
+  "quality",
+  "lint",
+  "format",
+  "pre-commit",
+  "python",
+  "static-analysis",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = [
+  "pydantic>=2.0",
+  "pathspec>=0.12",
+  "pyyaml>=6.0",
+  "typer>=0.12",
+]
+
+[project.optional-dependencies]
+server = [
+  "fastapi>=0.115",
+  "jinja2>=3.1",
+  "uvicorn>=0.30",
+  "python-multipart>=0.0.9",
+]
+
+[project.urls]
+Changelog = "https://github.com/inquilabee/shipgate/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/inquilabee/shipgate"
+Issues = "https://github.com/inquilabee/shipgate/issues"
+Repository = "https://github.com/inquilabee/shipgate"
+
+[dependency-groups]
+dev = [
+  "pre-commit>=4.0",
+  "pytest>=8.0",
+  "pytest-cov>=6.0",
+  "ruff>=0.11.0",
+  "fastapi>=0.115",
+  "jinja2>=3.1",
+  "uvicorn>=0.30",
+  "httpx>=0.27",
+  "httpx2>=2.0",
+  "python-multipart>=0.0.9",
+  "djlint>=1.40.8",
+]
+
+[project.scripts]
+shipgate = "shipgate.cli:app"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+shipgate = ["py.typed", "bundle/**/*", "server/templates/**/*", "server/static/**/*"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["src"]
+python_files = ["test_*.py"]
+addopts = [
+  "-m",
+  "not integration",
+  "--strict-config",
+  "--strict-markers",
+]
+filterwarnings = [
+  "error",
+]
+markers = [
+  "integration: tests that build wheels, install packages, or require external binaries/network",
+]
+
+[tool.mutmut]
+source_paths = ["src/shipgate/"]
+pytest_add_cli_args = [
+  "--ignore=tests/test_cli.py",
+  "--ignore=tests/test_cli_extended.py",
+]
+
+[tool.coverage.run]
+source = ["src/shipgate"]
+omit = [
+  "*/policy/*",
+  "*/server/cli.py",
+  "*/runner_script.py",
+  "*/installer.py",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["B", "C90", "E", "F", "I", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/shipgate/cli.py" = ["B008"]
+"src/shipgate/cli_aliases.py" = ["B008"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.djlint]
+profile = "jinja"
+
+[tool.ty]
+# Repo-owned config; wins over bundled defaults when configs.mode=auto
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+skips = ["B101", "B404", "B603", "B607"]
+
+[tool.codespell]
+skip = "reports,.shipgate,mutants,venv,.venv"
+ignore-words-list = "IST,fullfilled"

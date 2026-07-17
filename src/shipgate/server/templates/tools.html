@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Tool docs · shipgate{% endblock %}
+{% block content %}
+    <div class="space-y-6">
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight">Tool docs</h1>
+            <p class="mt-1 text-sm text-muted">Documentation links for catalog tools used by shipgate checks.</p>
+        </div>
+        {% if not tools %}
+            <div class="rounded-xl border border-dashed border-line bg-surface px-6 py-10 text-center">
+                <h2 class="text-lg font-semibold">No tools</h2>
+                <p class="mt-2 text-sm text-muted">The catalog has no tools loaded.</p>
+            </div>
+        {% else %}
+            <div class="overflow-x-auto rounded-xl border border-line bg-surface">
+                <table class="min-w-full text-left text-sm">
+                    <thead class="bg-stone-50 text-muted">
+                        <tr>
+                            <th class="px-4 py-3 font-medium">Tool</th>
+                            <th class="px-4 py-3 font-medium">Name</th>
+                            <th class="px-4 py-3 font-medium">Description</th>
+                            <th class="px-4 py-3 font-medium">Version</th>
+                            <th class="px-4 py-3 font-medium">Docs</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-line">
+                        {% for tool in tools %}
+                            <tr class="align-top hover:bg-stone-50">
+                                <td class="px-4 py-3 font-mono text-xs">{{ tool.id }}</td>
+                                <td class="px-4 py-3">{{ tool.name }}</td>
+                                <td class="px-4 py-3 max-w-md text-muted">{{ tool.description }}</td>
+                                <td class="px-4 py-3 font-mono text-xs">{{ tool.version }}</td>
+                                <td class="px-4 py-3">
+                                    {% if tool.documentation_url %}
+                                        <a class="text-brand hover:underline"
+                                           href="{{ tool.documentation_url }}"
+                                           target="_blank"
+                                           rel="noopener">Open docs</a>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

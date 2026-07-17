@@ -1,0 +1,11 @@
+id: demo
+name: Demo Suite
+description: Internal demo suite for sample_files fixtures (development only).
+env: auto
+target: sample_files/
+checks:
+  - id: ruff.lint
+  - id: ruff.format
+  - id: ty.check
+  - id: shellcheck.check
+  - id: bandit.scan

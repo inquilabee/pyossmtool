@@ -1,0 +1,58 @@
+# Copy to your consumer repo as shipgate.yaml
+# suite: is required — install / check / format use it when --suite is omitted
+suite: standard
+env: managed  # managed tools under .shipgate/tools
+target: .  # optional scan root (default .)
+
+# How failures are printed on stderr (on-disk report.json is always JSON)
+# Built-ins: json (default), log, text, compact, github
+# error-format: json
+#
+# Examples:
+#   error-format: text      # human summary
+#   error-format: compact   # file:line: one-liners
+#   error-format: github    # GitHub Actions annotations
+#   error-format: log       # timestamped log lines
+#
+# Custom formatters (then set error-format to the name):
+# error-formatters:
+#   short:
+#     kind: finding_line
+#     template: "{severity}\t{rule_id}\t{file}:{line}\t{message}"
+#   myjq:
+#     kind: jq
+#     program: >
+#       .findings[] | "[\(.severity)] \(.rule_id) \(.location.file // "-"):\(.location.line // "?") \(.message)"
+
+# Ignore rules (union-merged with suite defaults; .gitignore is always applied)
+# Bundled defaults already skip .venv/, .shipgate/, reports/, etc. — override only if needed:
+# ignore-profile:
+#   - .cursorignore
+# ignore-paths:
+#   - build/
+#   - tmp/
+
+# Optional per-check overrides (inherit suite checks when empty)
+# checks:
+#   - id: ruff.lint
+#     target: src/
+#   - id: deadcode.scan
+#     ignore-paths:
+#       - "**/generated/**"
+#   - id: gate.module-size
+#     target: .
+
+# Script gates (project-local bash checks)
+# 1. Scaffold:  shipgate gate init module-size --description "Cap module line counts"
+# 2. Edit:      .shipgate/gates/module-size.sh  (source lib via: shipgate gates lib-path)
+# 3. Register:  auto-created at .shipgate/catalog/checks/gate.module-size.yaml
+# 4. Enable:    add `- id: gate.module-size` under checks (or use a .shipgate/suites/*.yaml)
+
+# Config resolution: repo configs win in auto mode; bundled used as fallback
+configs:
+  mode: auto  # auto | bundled | paths
+  # paths:
+  #   gate.module-size: .shipgate/configs/gates/gate.module-size.yaml
+
+# Policy gate overrides (optional) — see package defaults/configs/gates/*.yaml
+# .shipgate/configs/gates/gate.module-size.yaml

@@ -1,0 +1,15 @@
+id: ruff.lint
+tool: ruff
+name: Ruff Lint
+description: Run ruff check on Python sources.
+argv:
+  - check
+  - "{target}"
+  - --output-format
+  - json
+parser: ruff_json
+success:
+  exit_codes: [0]
+remediation:
+  suggested_commands:
+    - shipgate format --check ruff.format.apply --target {target}

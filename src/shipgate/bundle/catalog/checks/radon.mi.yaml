@@ -1,0 +1,13 @@
+id: radon.mi
+tool: radon
+name: Radon Maintainability Index
+description: Fail when module maintainability rank exceeds policy.
+argv:
+  - mi
+  - "{target}"
+  - -j
+parser: radon_mi_json
+success:
+  exit_codes: [0]
+policy:
+  max_complexity_rank: A

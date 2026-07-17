@@ -1,0 +1,28 @@
+id: semgrep.scan
+tool: semgrep
+name: Semgrep Scan
+description: Static analysis using pinned Semgrep rulesets plus bundled Python quality rules.
+argv:
+  - scan
+  - --config
+  - p/ci
+  - --config
+  - p/secrets
+  - --config
+  - p/python
+  - --config
+  - r/bash
+  - --config
+  - "{config}"
+  - "{target}"
+  - --error
+  - --json
+  - --quiet
+  - --metrics
+  - "off"
+parser: semgrep_json
+success:
+  exit_codes: [0, 1]
+remediation:
+  suggested_commands:
+    - semgrep scan --config p/ci --config p/python {target}

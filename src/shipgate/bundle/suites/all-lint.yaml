@@ -1,0 +1,44 @@
+id: all-lint
+name: All Lint Checks
+description: Full lint and analysis catalog without format checkers or format-apply
+  tools. Includes pytest, mutmut, sourcery, and script gates.
+env: auto
+target: .
+ignore-profile:
+  - .gitignore
+  - .cursorignore
+ignore-paths:
+  - .shipgate/
+  - venv/
+  - .venv/
+  - reports/
+  - sample_files/
+  - mutants/
+checks:
+  - id: ruff.lint
+  - id: ruff.unused
+  - id: ty.check
+  - id: bandit.scan
+  - id: gitleaks.secrets
+  - id: semgrep.scan
+  - id: deadcode.scan
+  - id: vulture.scan
+  - id: pydeps.cycles
+  - id: radon.cc
+  - id: radon.mi
+  - id: jscpd.duplication
+  - id: shellcheck.check
+  - id: markdownlint.check
+  - id: yamllint.check
+  - id: codespell.spelling
+  - id: pytest.test
+    target: tests/
+  - id: pytest.coverage
+    target: tests/
+  - id: hadolint.dockerfile
+  - id: mutmut.run
+  - id: sourcery.review
+  - id: gate.module-size
+  - id: gate.module-private-vars
+  - id: gate.folder-breadth
+  - id: gate.acronym-allowlist

@@ -1,0 +1,14 @@
+id: ruff.format
+tool: ruff
+name: Ruff Format Check
+description: Verify Python formatting without applying changes.
+argv:
+  - format
+  - --check
+  - "{target}"
+parser: ruff_format_text
+success:
+  exit_codes: [0]
+remediation:
+  suggested_commands:
+    - shipgate format --check ruff.format.apply --target {target}

@@ -1,0 +1,14 @@
+id: yamlfmt.format
+tool: yamlfmt
+name: yamlfmt Lint
+description: Lint YAML files for formatting issues.
+argv:
+  - -lint
+  - '{target}'
+parser: yamlfmt_text
+success:
+  exit_codes:
+    - 0
+remediation:
+  suggested_commands:
+    - shipgate format --check yamlfmt.apply --target {target}

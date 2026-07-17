@@ -1,0 +1,15 @@
+id: ty.check
+tool: ty
+name: ty Type Check
+description: Static type checking with concise diagnostics.
+argv:
+  - check
+  - "{target}"
+  - --output-format
+  - concise
+parser: ty_concise
+success:
+  exit_codes: [0]
+remediation:
+  suggested_commands:
+    - ty check {target}

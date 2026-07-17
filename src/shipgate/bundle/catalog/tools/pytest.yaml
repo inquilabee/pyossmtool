@@ -1,0 +1,17 @@
+id: pytest
+name: pytest
+description: Python test runner with optional coverage via pytest-cov plugin.
+install:
+  method: pip
+  package: pytest>=8.0 pytest-cov>=6.0
+binary: pytest
+documentation_url: https://docs.pytest.org/
+config:
+  pyproject:
+    - tool
+    - pytest
+    - ini_options
+ignore:
+  kind: flag_pairs
+  flag: --ignore
+files: []

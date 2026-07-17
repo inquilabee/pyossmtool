@@ -1,0 +1,66 @@
+/* Report UI helpers on top of Tailwind CDN + Flowbite. */
+
+.finding-summary {
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.finding-summary:not(.finding-expanded):hover {
+  background-color: rgb(243 244 246);
+  box-shadow: inset 3px 0 0 rgb(209 213 219);
+}
+
+.finding-summary.finding-expanded {
+  background-color: rgb(249 250 251);
+  box-shadow: inset 3px 0 0 #0f766e;
+}
+
+.finding-summary:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: -2px;
+}
+
+.finding-table {
+  min-width: 52rem;
+}
+
+.finding-snippet {
+  background: #fff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.snippet-line {
+  display: flex;
+  width: 100%;
+  min-height: 20px;
+}
+
+.snippet-num {
+  flex: 0 0 3.25rem;
+  padding: 0 12px;
+  text-align: right;
+  user-select: none;
+  color: #656d76;
+  background: #f6f8fa;
+  border-right: 1px solid #d0d7de;
+}
+
+.snippet-code {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0 16px;
+  color: #24292f;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #fff;
+}
+
+.snippet-line-mark .snippet-num,
+.snippet-line-mark .snippet-code {
+  background: #fff8c5;
+}

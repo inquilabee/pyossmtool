@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}New run · shipgate{% endblock %}
+{% block content %}
+    <div class="mx-auto max-w-xl space-y-6">
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight">New run</h1>
+            <p class="mt-1 text-sm text-muted">Choose a branch and suite. Analysis runs in a separate worktree.</p>
+        </div>
+        {% if error %}
+            <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-800">{{ error }}</div>
+        {% endif %}
+        <form class="space-y-4 rounded-xl border border-line bg-surface p-5"
+              method="post"
+              action="/runs/new">
+            <div>
+                <label class="mb-1 block text-sm font-semibold" for="branch">Branch</label>
+                {% if branches %}
+                    <select id="branch"
+                            name="branch"
+                            required
+                            class="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm">
+                        {% for branch in branches %}
+                            <option value="{{ branch }}">{{ branch }}</option>
+                        {% endfor %}
+                    </select>
+                {% else %}
+                    <input id="branch"
+                           type="text"
+                           name="branch"
+                           required
+                           placeholder="main"
+                           class="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm">
+                    <p class="mt-1 text-sm text-muted">Could not list git branches — enter a branch name manually.</p>
+                {% endif %}
+            </div>
+            <div>
+                <label class="mb-1 block text-sm font-semibold" for="suite_id">Suite</label>
+                <select id="suite_id"
+                        name="suite_id"
+                        required
+                        class="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm">
+                    {% for suite in suites %}
+                        <option value="{{ suite }}"
+                                {% if suite == default_suite %}selected{% endif %}>{{ suite }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="rounded-lg border border-teal-200 bg-brand-soft px-4 py-3 text-sm text-brand-dark">
+                <p>{{ requirements_text }}</p>
+            </div>
+            {% if needs_ack %}
+                <label class="flex items-start gap-2 text-sm font-medium">
+                    <input type="checkbox"
+                           name="acknowledge_requirements"
+                           value="1"
+                           required
+                           class="mt-1">
+                    <span>I understand these requirements and want to continue.</span>
+                </label>
+            {% endif %}
+            <button type="submit"
+                    class="inline-flex rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark">Start run</button>
+        </form>
+    </div>
+{% endblock %}

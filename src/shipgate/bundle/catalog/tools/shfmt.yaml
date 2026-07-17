@@ -1,0 +1,13 @@
+id: shfmt
+name: shfmt
+description: Shell script formatter (via shfmt-py).
+install:
+  method: pip
+  package: shfmt-py>=4.0.0
+binary: shfmt
+documentation_url: https://github.com/mvdan/sh
+config:
+  repo_files:
+    - .editorconfig
+files:
+  - '**/*.{sh,bash,ksh,zsh}'

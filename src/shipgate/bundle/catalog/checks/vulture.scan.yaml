@@ -1,0 +1,16 @@
+id: vulture.scan
+tool: vulture
+name: Vulture Scan
+description: Find dead Python code with high confidence.
+argv:
+  - "{target}"
+  - --min-confidence
+  - "80"
+parser: vulture_text
+success:
+  exit_codes: [0, 3]
+policy:
+  min_confidence: 80
+remediation:
+  suggested_commands:
+    - vulture {target}

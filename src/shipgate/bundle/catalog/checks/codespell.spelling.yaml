@@ -1,0 +1,12 @@
+id: codespell.spelling
+tool: codespell
+name: Codespell
+description: Check prose for common misspellings.
+argv:
+  - "{target}"
+parser: codespell_text
+success:
+  exit_codes: [0]
+remediation:
+  suggested_commands:
+    - codespell -w {target}

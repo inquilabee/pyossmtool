@@ -1,0 +1,13 @@
+id: bandit.scan
+tool: bandit
+name: Bandit Security Scan
+description: Scan Python code for common security issues.
+argv:
+  - -r
+  - "{target}"
+  - -f
+  - json
+  - -q
+parser: bandit_json
+success:
+  exit_codes: [0, 1]

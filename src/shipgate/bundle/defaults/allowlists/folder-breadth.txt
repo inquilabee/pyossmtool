@@ -1,0 +1,1 @@
+# Directory paths exempt from folder breadth limits (repo-relative).

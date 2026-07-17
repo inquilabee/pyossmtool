@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% from "partials/snippet.html" import render_detail %}
+{% set source_contexts = source_contexts | default({}) %}
+{% set message_contexts = message_contexts | default({}) %}
+{% block title %}Findings · shipgate{% endblock %}
+{% block content %}
+    <div class="space-y-6">
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight text-gray-900">Findings</h1>
+            <p class="mt-1 text-sm text-gray-500">
+                Run <code class="font-mono text-xs">{{ run.id[:8] }}</code>
+                · {{ run.branch }}
+                · suite <code class="font-mono text-xs">{{ run.suite_id }}</code>
+                · <a class="text-brand hover:underline" href="/?run_id={{ run.id }}">Back to overview</a>
+            </p>
+        </div>
+        <form class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-5"
+              method="get"
+              action="/runs/{{ run.id }}/findings">
+            <div class="grid gap-4 sm:grid-cols-3">
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-900" for="severity">Severity</label>
+                    <select id="severity"
+                            name="severity"
+                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-brand focus:ring-brand">
+                        <option value="" {% if not severity %}selected{% endif %}>Any</option>
+                        {% for value in ["error", "warning", "info"] %}
+                            <option value="{{ value }}" {% if severity == value %}selected{% endif %}>{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-900" for="check_id">Check</label>
+                    <select id="check_id"
+                            name="check_id"
+                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-brand focus:ring-brand">
+                        <option value="" {% if not check_id %}selected{% endif %}>Any</option>
+                        {% for value in check_options %}
+                            <option value="{{ value }}" {% if check_id == value %}selected{% endif %}>{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-900" for="file">Path search</label>
+                    <input id="file"
+                           type="search"
+                           name="file"
+                           value="{{ file }}"
+                           placeholder="file, folder, or path substring"
+                           class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 font-mono text-sm text-gray-900 focus:border-brand focus:ring-brand">
+                </div>
+            </div>
+            <button type="submit"
+                    class="mt-4 rounded-lg bg-brand px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-dark focus:outline-none focus:ring-4 focus:ring-brand/30">
+                Filter
+            </button>
+        </form>
+        <section class="space-y-3">
+            <div class="flex flex-wrap items-end justify-between gap-2">
+                <h2 class="text-lg font-semibold text-gray-900">Code findings</h2>
+                {% if total %}
+                    <p class="text-sm text-gray-500">Showing {{ showing_from }}–{{ showing_to }} of {{ total }}</p>
+                {% endif %}
+            </div>
+            {% if not findings %}
+                <div class="rounded-lg border border-dashed border-gray-300 bg-white px-6 py-8 text-center text-sm text-gray-500">
+                    No code findings matched these filters for this run.
+                </div>
+            {% else %}
+                <div class="relative overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+                    <table class="finding-table w-full table-fixed text-left text-sm text-gray-700">
+                        <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                            <tr>
+                                <th scope="col" class="w-[7rem] px-4 py-3">Severity</th>
+                                <th scope="col" class="w-[9rem] px-4 py-3">Check</th>
+                                <th scope="col" class="w-[7rem] px-4 py-3">Rule</th>
+                                <th scope="col" class="w-[12rem] px-4 py-3">Location</th>
+                                <th scope="col" class="px-4 py-3">Message</th>
+                            </tr>
+                        </thead>
+                        {% for finding in findings %}
+                            <tbody class="finding-group border-b border-gray-200 last:border-b-0">
+                                <tr class="finding-summary align-top"
+                                    role="button"
+                                    tabindex="0"
+                                    aria-expanded="false">
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold {% if finding.severity == 'error' %}bg-red-100 text-red-800 {% elif finding.severity == 'warning' %}bg-amber-100 text-amber-800 {% elif finding.severity == 'info' %}bg-sky-100 text-sky-800 {% else %}bg-gray-200 text-gray-700{% endif %}">
+                                            {{ finding.severity }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 font-mono text-xs break-all">{{ finding.check_id }}</td>
+                                    <td class="px-4 py-3 font-mono text-xs break-all">{{ finding.rule_id }}</td>
+                                    <td class="px-4 py-3 max-w-0">
+                                        {% if finding.file %}
+                                            {% if finding.check_id == 'gate.folder-breadth' %}
+                                                <span class="text-xs text-gray-500">folder</span>
+                                                <code class="block font-mono text-xs break-all">{{ finding.file }}</code>
+                                            {% else %}
+                                                <code class="font-mono text-xs break-all">{{ finding.file }}{% if finding.line %}:{{ finding.line }}{% endif %}</code>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-xs text-gray-500"
+                                                  title="This finding is not tied to a single source file">
+                                                check <code class="font-mono break-all">{{ finding.check_id }}</code>
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-4 py-3 max-w-0">
+                                        <p class="finding-message line-clamp-2 text-sm leading-snug text-gray-500 [overflow-wrap:anywhere]">{{ finding.message }}</p>
+                                    </td>
+                                </tr>
+                                {% if source_contexts.get(finding.id) %}
+                                    {{ render_detail(source_contexts[finding.id]) }}
+                                {% elif message_contexts.get(finding.id) %}
+                                    {{ render_detail(message_contexts[finding.id]) }}
+                                {% endif %}
+                            </tbody>
+                        {% endfor %}
+                    </table>
+                </div>
+                {% if prev_page_url or next_page_url %}
+                    <div class="flex flex-wrap items-center justify-between gap-3 text-sm">
+                        {% if prev_page_url %}
+                            <a class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 font-medium text-gray-700 hover:border-brand hover:text-brand"
+                               href="{{ prev_page_url }}">← Previous</a>
+                        {% else %}
+                            <span></span>
+                        {% endif %}
+                        <span class="text-gray-500">Page {{ page }} of {{ total_pages }}</span>
+                        {% if next_page_url %}
+                            <a class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 font-medium text-gray-700 hover:border-brand hover:text-brand"
+                               href="{{ next_page_url }}">Next →</a>
+                        {% else %}
+                            <span></span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endif %}
+        </section>
+        <section class="space-y-3">
+            <h2 class="text-lg font-semibold text-gray-900">Tools that could not run</h2>
+            {% if not tool_failures %}
+                <p class="text-sm text-gray-500">No tool failures for this run{% if check_id or severity %} with these filters{% endif %}.</p>
+            {% else %}
+                <div class="relative overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+                    <table class="finding-table w-full table-fixed text-left text-sm text-gray-700">
+                        <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                            <tr>
+                                <th scope="col" class="w-[7rem] px-4 py-3">Severity</th>
+                                <th scope="col" class="w-[9rem] px-4 py-3">Check</th>
+                                <th scope="col" class="w-[7rem] px-4 py-3">Tool</th>
+                                <th scope="col" class="w-[7rem] px-4 py-3">Rule</th>
+                                <th scope="col" class="px-4 py-3">Message</th>
+                            </tr>
+                        </thead>
+                        {% for finding in tool_failures %}
+                            <tbody class="finding-group border-b border-gray-200 last:border-b-0">
+                                <tr class="finding-summary align-top"
+                                    role="button"
+                                    tabindex="0"
+                                    aria-expanded="false">
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-red-100 text-red-800">{{ finding.severity }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 font-mono text-xs break-all">{{ finding.check_id }}</td>
+                                    <td class="px-4 py-3 font-mono text-xs break-all">{{ finding.tool_id }}</td>
+                                    <td class="px-4 py-3 font-mono text-xs break-all">{{ finding.rule_id }}</td>
+                                    <td class="px-4 py-3 max-w-0">
+                                        <p class="finding-message line-clamp-2 text-sm leading-snug text-gray-500 [overflow-wrap:anywhere]">{{ finding.message }}</p>
+                                    </td>
+                                </tr>
+                                {% if message_contexts.get(finding.id) %}
+                                    {{ render_detail(message_contexts[finding.id]) }}
+                                {% endif %}
+                            </tbody>
+                        {% endfor %}
+                    </table>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+{% endblock %}

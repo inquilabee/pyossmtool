@@ -1,0 +1,16 @@
+<div class="rounded-xl border border-line bg-surface px-4 py-3 font-mono text-sm"
+     {% if run.status.value in ("queued", "running") %} hx-get="/partials/runs/{{ run.id }}/progress" hx-trigger="every 1s" hx-swap="outerHTML" {% else %} data-run-complete="1" data-run-id="{{ run.id }}" {% endif %}>
+    <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+        <span><strong>Status:</strong> {{ run.status.value }}</span>
+        <span class="text-muted">·</span>
+        <span>checks {{ run.checks_completed }}/{{ run.checks_total }}</span>
+        {% if run.current_check_id %}
+            <span class="text-muted">·</span>
+            <span>current <code class="break-all">{{ run.current_check_id }}</code></span>
+        {% endif %}
+        {% if run.status.value not in ("queued", "running") %}
+            <span class="text-muted">·</span>
+            <span class="text-brand">Updating overview…</span>
+        {% endif %}
+    </div>
+</div>

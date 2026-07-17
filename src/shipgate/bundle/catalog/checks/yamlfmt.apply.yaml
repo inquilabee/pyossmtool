@@ -1,0 +1,10 @@
+id: yamlfmt.apply
+tool: yamlfmt
+name: yamlfmt Apply
+description: Apply YAML formatting.
+mode: format
+argv:
+  - "{target}"
+parser: noop
+success:
+  exit_codes: [0]

@@ -1,0 +1,14 @@
+id: gate.acronym-allowlist
+tool: script
+name: Acronym Allowlist Gate
+description: Require documented expansions for acronyms in contributor prose.
+script: bundled:gates/acronym-allowlist.sh
+parser: gate_json
+output_file: .shipgate/reports/gate.acronym-allowlist.json
+argv: []
+config:
+  bundled: gates/acronym-allowlist.yaml
+  project_file: .shipgate/configs/gates/gate.acronym-allowlist.yaml
+  allowlist_bundled: acronyms.yaml
+success:
+  exit_codes: [0]

@@ -1,0 +1,17 @@
+id: ruff.unused
+tool: ruff
+name: Ruff Unused Imports
+description: Detect unused imports and variables (F401, F841).
+argv:
+  - check
+  - "{target}"
+  - --select
+  - F401,F841
+  - --output-format
+  - json
+parser: ruff_json
+success:
+  exit_codes: [0]
+remediation:
+  suggested_commands:
+    - ruff check --select F401,F841 --fix {target}

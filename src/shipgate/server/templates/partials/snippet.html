@@ -1,0 +1,15 @@
+{% macro render_snippet(ctx) %}
+    <div class="finding-snippet rounded-lg border border-gray-200">
+        {% for line in ctx.lines %}
+            <div class="snippet-line{% if line.highlighted %} snippet-line-mark{% endif %}">
+                <span class="snippet-num">{{ line.number }}</span>
+                <span class="snippet-code">{{ line.text if line.text else " " }}</span>
+            </div>
+        {% endfor %}
+    </div>
+{% endmacro %}
+{% macro render_detail(ctx, colspan=5) %}
+    <tr class="finding-detail hidden">
+        <td colspan="{{ colspan }}" class="bg-gray-50 px-4 py-4">{{ render_snippet(ctx) }}</td>
+    </tr>
+{% endmacro %}

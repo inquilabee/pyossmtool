@@ -1,0 +1,18 @@
+id: python-quality
+name: Python Quality
+description: Core Python lint, format, and type checks.
+env: auto
+target: .
+ignore-profile:
+  - .gitignore
+  - .cursorignore
+ignore-paths:
+  - .shipgate/
+  - venv/
+  - .venv/
+  - reports/
+  - sample_files/
+checks:
+  - id: ruff.format
+  - id: ruff.lint
+  - id: ty.check

@@ -1,0 +1,16 @@
+id: hadolint.dockerfile
+tool: hadolint
+name: Hadolint
+description: Lint Dockerfiles.
+argv:
+  - --format
+  - json
+  - '{target}'
+parser: hadolint_json
+success:
+  exit_codes:
+    - 0
+    - 1
+remediation:
+  suggested_commands:
+    - hadolint {target}

@@ -1,0 +1,13 @@
+id: mutmut.run
+tool: mutmut
+name: Mutmut Mutation Testing
+description: Run mutation tests (slow; requires [tool.mutmut] in pyproject.toml).
+argv:
+  - run
+parser: mutmut_text
+success:
+  exit_codes: [0]
+remediation:
+  suggested_commands:
+    - mutmut run
+    - mutmut results

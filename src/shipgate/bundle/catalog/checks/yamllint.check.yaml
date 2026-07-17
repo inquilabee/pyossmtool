@@ -1,0 +1,16 @@
+id: yamllint.check
+tool: yamllint
+name: Yamllint
+description: Lint YAML files for syntax and style issues.
+argv:
+  - -f
+  - parsable
+  - '{target}'
+parser: yamllint_text
+success:
+  exit_codes:
+    - 0
+    - 1
+remediation:
+  suggested_commands:
+    - yamllint {target}

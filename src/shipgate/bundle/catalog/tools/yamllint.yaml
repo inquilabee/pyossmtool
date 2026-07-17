@@ -1,0 +1,24 @@
+id: yamllint
+name: yamllint
+description: YAML syntax and style linter.
+install:
+  method: pip
+  package: yamllint>=1.38.0
+binary: yamllint
+documentation_url: https://yamllint.readthedocs.io/
+config:
+  flag: -c
+  bundled: yamllint.yaml
+  repo_files:
+    - .yamllint
+    - .yamllint.yaml
+    - .yamllint.yml
+ignore:
+  kind: config_overlay
+  format: yaml
+  file: yamllint.yaml
+  flag: -c
+  key: ignore
+  key_style: block
+files:
+  - '**/*.{yml,yaml}'

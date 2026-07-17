@@ -1,0 +1,21 @@
+id: semgrep
+name: Semgrep
+description: Static analysis for security and code quality patterns.
+install:
+  method: pip
+  package: semgrep>=1.79.0
+binary: semgrep
+documentation_url: https://semgrep.dev/
+config:
+  flag: --config
+  bundled_path: defaults/semgrep/python-quality.yml
+  pass_flag: false
+  repo_dirs:
+    - .semgrep
+    - .tools/semgrep
+ignore:
+  kind: flag_pairs
+  flag: --exclude
+  post_subcommand: true
+files:
+  - '**/*.py'

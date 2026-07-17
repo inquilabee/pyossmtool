@@ -1,0 +1,11 @@
+id: shfmt.apply
+tool: shfmt
+name: shfmt Apply
+description: Apply shell script formatting.
+mode: format
+argv:
+  - -w
+  - "{target}"
+parser: noop
+success:
+  exit_codes: [0]

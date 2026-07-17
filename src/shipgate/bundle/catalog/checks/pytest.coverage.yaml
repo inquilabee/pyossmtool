@@ -1,0 +1,19 @@
+id: pytest.coverage
+tool: pytest
+name: Pytest Coverage
+description: Run tests with coverage floor enforcement.
+argv:
+  - "{target}"
+  - --cov={cov}
+  - --cov-report=term-missing
+  - --cov-fail-under=80
+  - -q
+parser: pytest_text
+success:
+  exit_codes: [0]
+policy:
+  min_coverage_percent: 80
+  coverage_source: src/
+remediation:
+  suggested_commands:
+    - pytest {target} --cov={cov}

@@ -1,0 +1,18 @@
+id: deadcode.scan
+tool: deadcode
+name: Deadcode Scan
+description: Find unused Python definitions.
+argv:
+  - --no-color
+  - "{target}"
+  - --exclude
+  - '*/server/*'
+  - --ignore-names
+  - side_effect
+  - _isolate_git_environment
+parser: deadcode_text
+success:
+  exit_codes: [0]
+remediation:
+  suggested_commands:
+    - deadcode --no-color {target}

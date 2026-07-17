@@ -1,0 +1,5 @@
+# Bandit defaults for quality-tool orchestrators (subprocess is expected).
+skips:
+  - B404
+  - B603
+  - B607

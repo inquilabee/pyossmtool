@@ -1,0 +1,17 @@
+id: markdownlint.check
+tool: markdownlint
+name: Markdownlint
+description: Lint Markdown files for style issues.
+argv:
+  - -c
+  - '{config}'
+  - -j
+  - '{target}'
+parser: markdownlint_json
+success:
+  exit_codes:
+    - 0
+    - 1
+remediation:
+  suggested_commands:
+    - markdownlint {target}

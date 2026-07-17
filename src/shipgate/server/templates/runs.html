@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Runs · shipgate{% endblock %}
+{% block content %}
+    <div class="space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <h1 class="text-2xl font-bold tracking-tight">Runs</h1>
+            <a class="inline-flex rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark"
+               href="/runs/new">New run</a>
+        </div>
+        {% if not runs %}
+            <div class="rounded-xl border border-dashed border-line bg-surface px-6 py-10 text-center">
+                <h2 class="text-lg font-semibold">No runs yet</h2>
+                <p class="mt-2 text-sm text-muted">History will appear here after you start a suite run.</p>
+            </div>
+        {% else %}
+            <div class="overflow-x-auto rounded-xl border border-line bg-surface">
+                <table class="min-w-full text-left text-sm">
+                    <thead class="bg-stone-50 text-muted">
+                        <tr>
+                            <th class="px-4 py-3 font-medium">Started</th>
+                            <th class="px-4 py-3 font-medium">Branch</th>
+                            <th class="px-4 py-3 font-medium">Suite</th>
+                            <th class="px-4 py-3 font-medium">Status</th>
+                            <th class="px-4 py-3 font-medium">Findings</th>
+                            <th class="px-4 py-3 font-medium"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-line">
+                        {% for run in runs %}
+                            <tr class="hover:bg-stone-50">
+                                <td class="px-4 py-3 text-muted whitespace-nowrap">{{ run.started_at }}</td>
+                                <td class="px-4 py-3 font-mono text-xs">{{ run.branch }}</td>
+                                <td class="px-4 py-3 font-mono text-xs">{{ run.suite_id }}</td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold {% if run.status.value == 'failed' %}bg-red-100 text-red-800 {% elif run.status.value == 'succeeded' %}bg-emerald-100 text-emerald-800 {% elif run.status.value in ('queued', 'running') %}bg-sky-100 text-sky-800 {% else %}bg-stone-200 text-stone-700{% endif %}">
+                                        {{ run.status.value }}
+                                    </span>
+                                    {% if run.status.value == "failed" and run.error_message %}
+                                        <div class="mt-1 max-w-sm text-xs text-muted">{{ run.error_message }}</div>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3">{{ run.summary.finding_count if run.summary else "—" }}</td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <a class="text-brand hover:underline" href="/?run_id={{ run.id }}">Overview</a>
+                                    ·
+                                    <a class="text-brand hover:underline" href="/runs/{{ run.id }}/findings">Findings</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

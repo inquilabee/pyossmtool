@@ -1,0 +1,51 @@
+id: all
+name: All Checks
+description: Full catalog — every bundled check (check-mode and format-apply). Use
+  shipgate check for report-only checks and shipgate format for apply checks.
+env: auto
+target: .
+ignore-profile:
+  - .gitignore
+  - .cursorignore
+ignore-paths:
+  - .shipgate/
+  - venv/
+  - .venv/
+  - reports/
+  - sample_files/
+checks:
+  - id: ruff.format
+  - id: ruff.lint
+  - id: ruff.unused
+  - id: ty.check
+  - id: bandit.scan
+  - id: gitleaks.secrets
+  - id: semgrep.scan
+  - id: deadcode.scan
+  - id: vulture.scan
+  - id: pydeps.cycles
+  - id: radon.cc
+  - id: radon.mi
+  - id: jscpd.duplication
+  - id: shfmt.format
+  - id: shellcheck.check
+  - id: mdformat.format
+  - id: markdownlint.check
+  - id: yamlfmt.format
+  - id: yamllint.check
+  - id: codespell.spelling
+  - id: pytest.test
+    target: tests/
+  - id: pytest.coverage
+    target: tests/
+  - id: hadolint.dockerfile
+  - id: mutmut.run
+  - id: sourcery.review
+  - id: gate.module-size
+  - id: gate.module-private-vars
+  - id: gate.folder-breadth
+  - id: gate.acronym-allowlist
+  - id: ruff.format.apply
+  - id: shfmt.apply
+  - id: mdformat.apply
+  - id: yamlfmt.apply

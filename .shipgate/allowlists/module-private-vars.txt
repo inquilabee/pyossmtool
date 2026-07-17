@@ -1,0 +1,12 @@
+# One repo-relative file path per line (whole-file exemption).
+src/pyossmtool/cli.py
+src/pyossmtool/ignore_materialize.py
+src/pyossmtool/parsers/__init__.py
+src/pyossmtool/parsers/common.py
+src/pyossmtool/server/finding_context.py
+src/pyossmtool/server/ingest.py
+src/pyossmtool/server/orchestrator.py
+src/pyossmtool/server/storage/sqlite.py
+src/pyossmtool/server/tool_versions.py
+src/pyossmtool/server/worktree.py
+src/pyossmtool/target_expand.py

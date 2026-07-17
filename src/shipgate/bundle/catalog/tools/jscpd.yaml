@@ -1,0 +1,15 @@
+id: jscpd
+name: JSCPD
+description: Copy/paste detector for duplicated code.
+install:
+  method: npm
+  package: jscpd
+binary: jscpd
+documentation_url: https://docs.jscpd.io/
+ignore:
+  kind: config_overlay
+  format: json
+  file: jscpd.json
+  flag: --config
+  key: ignore
+files: []

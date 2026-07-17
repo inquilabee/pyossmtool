@@ -1,0 +1,5 @@
+# Directory paths exempt from folder breadth limits (repo-relative).
+src/pyossmtool/bundle/catalog/checks
+tests
+src/pyossmtool/bundle/catalog/tools
+src/pyossmtool
