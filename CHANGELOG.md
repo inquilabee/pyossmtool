@@ -4,11 +4,11 @@
 
 ## Unreleased
 
-## v0.1.0
+## v0.0.2
 
 ### Added
 
-- **Breaking rename:** package and CLI are now `shipgate` (runtime dir `.shipgate/`, config `shipgate.yaml`). Legacy `pyossmtool.yaml` and `.pyossmtool/` are read with a deprecation warning.
+- **Initial release:** package and CLI are `shipgate` (runtime dir `.shipgate/`, config `shipgate.yaml`).
 - `<tool_id>.yaml` and `.shipgate/configs/<tool_id>.yaml` config discovery in `auto` mode.
 - CLI flags `--config`, `--include`, and suite-level `--target` overrides.
 - Per-tool CLI aliases: `shipgate ruff lint --target src/`.
